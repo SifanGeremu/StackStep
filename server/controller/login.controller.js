@@ -1,5 +1,6 @@
 import User from "../models/users";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 const loginController = async (req, res) => {
   try {
@@ -11,35 +12,40 @@ const loginController = async (req, res) => {
       });
     }
 
-    // 1. Find user
+    // Find user
     const user = await User.findOne({ email });
 
-    // 2. Generic error 
+    // Generic error
     if (!user) {
-      return res.status(401).json({
-        message: "Invalid credentials",
-      });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // 3. Compare password
+    // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
-
     if (!isMatch) {
-      return res.status(401).json({
-        message: "Invalid credentials",
-      });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // 4. Issue JWT 
+    // Create JWT payload
+    const payload = {
+      userId: user._id,
+      email: user.email,
+      role: user.role,
+    };
+
+    // Sign token
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    //  Return token
     return res.status(200).json({
       message: "Login successful",
-      // token will go here
+      token,
     });
   } catch (error) {
     console.error("Login error:", error);
-    return res.status(500).json({
-      message: "Server error",
-    });
+    return res.status(500).json({ message: "Server error" });
   }
 };
 
