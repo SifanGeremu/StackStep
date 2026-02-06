@@ -20,7 +20,7 @@ connectDB(process.env.ATLAS_URI);
 // Test route
 app.get("/", (req, res) => res.send("Hello World!"));
 
-//register route\
+//register route
 app.use("/api",registerRoute);
 
 //Start server
