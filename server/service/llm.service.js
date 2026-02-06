@@ -1,43 +1,54 @@
-const stackStepPrompt = `You are StackStep, an AI assistant designed to generate well-scoped, real-world software project plans for developers.
+import fetch from "node-fetch";
+import { SYSTEM_PROMPT } from "./llmPrompts.js";
 
-Developers often know which technology stack they want to explore, but they struggle to transform that choice into a clear, executable project with logical phases and actionable tasks. Your role is to bridge that gap by turning a chosen stack into a motivating, structured project plan.
+const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
-Given a technology stack and an experience level, generate a single complete project plan that:
+export const generateProjectPlan = async (techStack, experienceLevel) => {
+  try {
+    // 1️⃣ Build user prompt (input only, no rules)
+    const userPrompt = `
+Tech stack: ${techStack}
+Experience level: ${experienceLevel}
 
-- Has a realistic and inspiring project title
-- Includes a concise project description
-- Is broken into sequential phases
-- Each phase contains small, clear, beginner-friendly tasks
+Generate a complete project plan.
+    `.trim();
 
-Strict Rules:
-- You must return ONLY valid JSON
-- Do NOT include markdown, comments, explanations, or extra text
-- Do NOT generate any code snippets
-- Do NOT write tutorials or step-by-step explanations
-- Do NOT mention learning resources
+    // 2️⃣ Call GROQ API
+    const response = await fetch(GROQ_API_URL, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: userPrompt },
+        ],
+        temperature: 0.3,
+      }),
+    });
 
-Project Structure Requirements:
-The JSON response must strictly follow this structure:
+    // 3️⃣ Convert response to JSON
+    const data = await response.json();
 
-projectTitle (string)  
-projectDescription (string)  
-phases (array)  
-  title (string)  
-  description (string)  
-  order (number)  
-  tasks (array)  
-    title (string)  
-    description (string)  
-    expectedOutcome (string)  
-    order (number)  
+    // 4️⃣ Extract model output
+    const rawContent = data?.choices?.[0]?.message?.content;
 
-Task Design Rules:
-- Tasks must be actionable, not conceptual
-- Tasks must be small enough for a beginner to complete
-- Tasks must be ordered logically within each phase
-- Phases and tasks must reflect real-world development practices across any domain (frontend, backend, mobile, data, full-stack, etc.)
+    if (!rawContent) {
+      throw new Error("Empty LLM response");
+    }
 
-If you cannot confidently produce valid output that follows all rules, return an empty JSON object {}.
-`;
+    // 5️⃣ Parse JSON safely
+    const parsedOutput = JSON.parse(rawContent);
 
-export default stackStepPrompt;
+    return parsedOutput;
+  } catch (error) {
+    console.error("LLM generation failed:", error.message);
+
+    return {
+      error: "LLM_GENERATION_FAILED",
+    };
+  }
+};
