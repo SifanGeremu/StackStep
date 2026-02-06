@@ -3,11 +3,11 @@ import User from "../models/users.js";
 
 const registerController = async (req,res)=>{
     try {
-  const { email, password } = req.body;
-  if (!email || !password) {
+  const { email,name,password } = req.body;
+  if (!email ||!name|| !password) {
     return res
       .status(400)
-      .json({ message: "please provide email and password" });
+      .json({ message: "please provide email, name and password" });
   }
 
   // check if user exists already
