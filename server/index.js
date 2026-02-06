@@ -1,35 +1,27 @@
 import "dotenv/config";
 import express from "express";
-import { toNodeHandler } from "better-auth/node";
-import mongoose from "mongoose";
 import cors from "cors";
-
-import auth from "./Auth/auth.js";
 import connectDB from "./db.js";
-
+import registerRoute from "./routes/register.route.js";
 const app = express();
-const PORT = process.env.PORT;
-
-// Mount Better Auth handler
-app.use("/api/auth", toNodeHandler(auth));
+const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
+);
 
-// Connect to MongoDB Atlas
+// Connect MongoDB Atlas
 connectDB(process.env.ATLAS_URI);
 
 // Test route
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
+app.get("/", (req, res) => res.send("Hello World!"));
 
-// Example protected route
-// app.get("/api/projects", auth.protect, async (req, res) => {
-//   res.json({ projects: [], user: req.user });
-// });
+//register route\
+app.use("/api",registerRoute);
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+//Start server
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
