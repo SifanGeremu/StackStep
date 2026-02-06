@@ -1,4 +1,4 @@
-import rateLimit from "express-rate-limit";
+import   rateLimit from "express-rate-limit";
 
 // Limit signup attempts to max 5 per IP per minute
 const signupLimiter = rateLimit({
