@@ -1,5 +1,5 @@
-import generateProjectPlan from "../services/llmService.js";
-import { saveProject } from "../services/projectService.js";
+import generateProjectPlan from "../service/llm.service.js";
+import { saveProject } from "../service/projectService.js";
 
 export const createProjectController = async (req, res) => {
   const { techStack, experienceLevel } = req.body;
