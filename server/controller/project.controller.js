@@ -13,7 +13,7 @@ export const createProjectController = async (req, res) => {
     }
 
     // Save to MongoDB
-    const savedProject = await saveProject(techStack, llmPlan);
+    const savedProject = await saveProject(techStack, llmPlan.plan);
 
     if (savedProject.error) {
       return res.status(500).json({ message: "Project save failed" });
