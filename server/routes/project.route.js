@@ -22,9 +22,7 @@ router.get("/:id", authMiddleware, async (req, res) => {
       return res.status(400).json({ message: "Invalid project ID" });
     }
 
-    // Fetch project first, then validate ownership. This handles legacy projects
-    // that may not have a `user` field while still enforcing ownership for
-    // projects that do have an owner set.
+    
     const project = await Project.findById(projectId);
 
     if (!project) {

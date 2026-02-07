@@ -3,7 +3,7 @@ import { saveProject } from "../service/projectService.js";
 
 export const createProjectController = async (req, res) => {
   const { techStack, experienceLevel } = req.body;
-  const userId = req.user?._id || req.user?.id || req.user;
+  const userId = req.user?._id;
 
   try {
     // Generate LLM plan
