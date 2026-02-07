@@ -94,7 +94,7 @@ export const apiService = {
    * Response: { success: true }
    */
   deleteProject: async (id: string) => {
-    return api.delete(`/api/projects/${id}`);
+    return api.delete(`/api/projects/delete/${id}`);
   },
 };
 

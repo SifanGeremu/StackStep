@@ -1,27 +1,22 @@
-'use client';
+"use client";
 
-import { useNavigate, Link } from 'react-router-dom'
-import { AuthState } from '@/hooks/useAuth'
+import { useNavigate, Link } from "react-router-dom";
+import { AuthState } from "@/hooks/useAuth";
 
 interface HomePageProps {
-  auth: AuthState
+  auth: AuthState;
 }
 
-/**
- * Landing / Home Page
- * Public page showing StackStep pitch
- * CTA button redirects to /login if not authenticated or /generate if authenticated
- */
 export default function HomePage({ auth }: HomePageProps) {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleGetStarted = () => {
     if (auth.isAuthenticated) {
-      navigate('/generate')
+      navigate("/generate");
     } else {
-      navigate('/login')
+      navigate("/login");
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -74,59 +69,77 @@ export default function HomePage({ auth }: HomePageProps) {
       </nav>
 
       {/* Hero Section */}
-      <section className="flex items-center justify-center min-h-[calc(100vh-80px)] px-4 py-12">
-        <div className="max-w-3xl w-full text-center space-y-8">
+      <section className="relative overflow-hidden flex items-center justify-center min-h-[calc(100vh-80px)] px-4 py-20">
+        {/* Subtle background accent */}
+        <div className="pointer-events-none absolute -top-16 -left-20 w-[520px] h-[520px] rounded-full bg-gradient-to-br from-accent/20 to-purple-200 blur-3xl opacity-60" />
+
+        <div className="max-w-4xl w-full text-center space-y-10 z-10">
           {/* Title */}
-          <div className="space-y-4">
-            <h1 className="text-5xl sm:text-6xl font-bold text-text leading-tight text-balance">
-              Learn Tech Stacks by Building
+          <div className="space-y-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-text leading-tight tracking-tight">
+              Learn Tech Stacks by Building Real Projects
             </h1>
-            <p className="text-xl sm:text-2xl text-text-light max-w-2xl mx-auto text-balance">
-              Generate beginner-friendly phased project roadmaps for any tech
-              stack — no code dumps, just clear tasks to learn by building.
+            <p className="text-lg sm:text-xl md:text-2xl text-text-light max-w-3xl mx-auto">
+              Generate phased, beginner-friendly project roadmaps for any tech
+              stack — clear, actionable tasks to help you learn by building.
             </p>
           </div>
 
-          {/* CTA Button */}
-          <button
-            onClick={handleGetStarted}
-            className="inline-block px-8 py-4 bg-accent text-white text-lg font-bold rounded-lg hover:bg-accent-hover transition-all hover:shadow-lg active:scale-95"
-          >
-            Get Started
-          </button>
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <button
+              onClick={handleGetStarted}
+              aria-label="Get started"
+              className="inline-flex items-center justify-center px-10 py-4 bg-accent text-white text-lg font-semibold rounded-full hover:bg-accent-hover transition-all shadow-xl transform-gpu hover:-translate-y-0.5 active:scale-95"
+            >
+              Get Started
+            </button>
+
+            <Link
+              to="/signup"
+              className="inline-flex items-center justify-center px-6 py-3 bg-background border border-border-color text-text font-medium rounded-full hover:bg-gray-50 transition"
+            >
+              Create account
+            </Link>
+          </div>
 
           {/* Features Grid */}
           <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-6">
             {/* Feature 1 */}
-            <div className="card">
-              <div className="w-12 h-12 bg-accent rounded-lg flex items-center justify-center mb-4 mx-auto">
+            <div className="card p-6 text-center">
+              <div className="w-14 h-14 bg-accent rounded-lg flex items-center justify-center mb-4 mx-auto shadow-md">
                 <span className="text-white font-bold text-xl">1</span>
               </div>
-              <h3 className="font-bold text-text mb-2">Tell Us Your Stack</h3>
+              <h3 className="font-semibold text-text mb-2">
+                Tell Us Your Stack
+              </h3>
               <p className="text-text-light text-sm">
-                Enter any tech stack (MERN, Next.js + Tailwind, etc.)
+                Enter any tech stack (MERN, Next.js + Tailwind, Django +
+                Postgres)
               </p>
             </div>
 
             {/* Feature 2 */}
-            <div className="card">
-              <div className="w-12 h-12 bg-accent rounded-lg flex items-center justify-center mb-4 mx-auto">
+            <div className="card p-6 text-center">
+              <div className="w-14 h-14 bg-accent rounded-lg flex items-center justify-center mb-4 mx-auto shadow-md">
                 <span className="text-white font-bold text-xl">2</span>
               </div>
-              <h3 className="font-bold text-text mb-2">Get a Roadmap</h3>
+              <h3 className="font-semibold text-text mb-2">Get a Roadmap</h3>
               <p className="text-text-light text-sm">
-                Our AI generates a phased, beginner-friendly roadmap
+                Our AI creates phased, beginner-friendly plans
               </p>
             </div>
 
             {/* Feature 3 */}
-            <div className="card">
-              <div className="w-12 h-12 bg-accent rounded-lg flex items-center justify-center mb-4 mx-auto">
+            <div className="card p-6 text-center">
+              <div className="w-14 h-14 bg-accent rounded-lg flex items-center justify-center mb-4 mx-auto shadow-md">
                 <span className="text-white font-bold text-xl">3</span>
               </div>
-              <h3 className="font-bold text-text mb-2">Learn by Building</h3>
+              <h3 className="font-semibold text-text mb-2">
+                Learn by Building
+              </h3>
               <p className="text-text-light text-sm">
-                Follow clear, actionable tasks and build projects
+                Follow clear, actionable tasks and build real projects
               </p>
             </div>
           </div>
@@ -138,7 +151,7 @@ export default function HomePage({ auth }: HomePageProps) {
             </p>
             <button
               onClick={handleGetStarted}
-              className="inline-block px-8 py-4 bg-accent text-white text-lg font-bold rounded-lg hover:bg-accent-hover transition-all hover:shadow-lg active:scale-95"
+              className="inline-block px-8 py-3 bg-accent text-white text-lg font-semibold rounded-full hover:bg-accent-hover transition-all hover:shadow-lg active:scale-95"
             >
               Get Started Now
             </button>
@@ -153,5 +166,5 @@ export default function HomePage({ auth }: HomePageProps) {
         </div>
       </footer>
     </div>
-  )
+  );
 }

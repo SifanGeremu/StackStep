@@ -11,7 +11,8 @@ import { AuthState } from "@/hooks/useAuth";
 import { formatDate } from "@/lib/utils";
 
 interface Project {
-  id: string;
+  id?: string;
+  _id?: string;
   title: string;
   techStack: string;
   experienceLevel: string;
@@ -23,11 +24,7 @@ interface DashboardPageProps {
   auth: AuthState & { logout: () => void };
 }
 
-/**
- * Dashboard Page (Protected)
- * Shows grid/list of user's previous projects
- * TODO: Connect to GET /api/projects
- */
+
 export default function DashboardPage({ auth }: DashboardPageProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -81,7 +78,7 @@ export default function DashboardPage({ auth }: DashboardPageProps) {
               No projects yet
             </h3>
             <p className="text-text-light mb-6">
-              Create your first learning roadmap to get started
+              Create your building roadmap to get started
             </p>
             <Link
               to="/generate"
@@ -93,7 +90,7 @@ export default function DashboardPage({ auth }: DashboardPageProps) {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project) => (
-              <div key={project.id} className="card flex flex-col h-full">
+              <div key={project._id} className="card flex flex-col h-full">
                 {/* Title */}
                 <h3 className="text-xl font-bold text-text mb-2">
                   {project.title}
@@ -121,7 +118,7 @@ export default function DashboardPage({ auth }: DashboardPageProps) {
 
                 {/* View Button */}
                 <Link
-                  to={`/projects/${project.id}`}
+                  to={`/projects/${project._id || project.id}`}
                   className="w-full px-4 py-3 bg-accent text-white rounded-lg font-semibold hover:bg-accent-hover transition-colors text-center"
                 >
                   View Roadmap

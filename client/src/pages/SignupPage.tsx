@@ -19,11 +19,12 @@ export default function SignupPage({ auth }: SignupPageProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Redirect to dashboard if already logged in
-  if (auth.isAuthenticated) {
-    navigate("/dashboard");
-    return null;
-  }
+  // Redirect to dashboard if already logged in (use effect to avoid navigating during render)
+  React.useEffect(() => {
+    if (auth.isAuthenticated) {
+      navigate("/dashboard");
+    }
+  }, [auth.isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,9 +59,11 @@ export default function SignupPage({ auth }: SignupPageProps) {
       auth.login(token, user?.email || email);
 
       toast.success("Account created successfully!");
-      navigate("/dashboard");
+      // Wait briefly for auth state to propagate to parent hook, then navigate
+      setTimeout(() => navigate("/dashboard"), 50);
     } catch (err: any) {
       const errorMsg =
+        err.response?.data?.errors?.[0] ||
         err.response?.data?.message ||
         err.message ||
         "Signup failed. Please try again.";

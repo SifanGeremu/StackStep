@@ -18,51 +18,48 @@ export default function GeneratePage({ auth }: GeneratePageProps) {
   const [experienceLevel, setExperienceLevel] = useState("Beginner");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+ const handleSubmit = async (e: React.FormEvent) => {
+   e.preventDefault();
 
-    if (!techStack.trim()) {
-      toast.error("Please enter a tech stack");
-      return;
-    }
+   if (!techStack.trim()) {
+     toast.error("Please enter a tech stack");
+     return;
+   }
 
-    setIsLoading(true);
+   setIsLoading(true);
 
-    try {
-      const response = await apiService.generateRoadmap(
-        techStack,
-        experienceLevel,
-      );
+   try {
+     const response = await apiService.generateRoadmap(
+       techStack,
+       experienceLevel,
+     );
 
-      // Debug: see exactly what backend returns
-      console.log("Full generate response:", response.data);
+     console.log("Backend response:", response.data);
 
-      // Extract ID safely (backend might return _id, id, or inside project object)
-      let id =
-        response.data._id ||
-        response.data.id ||
-        response.data.project?._id ||
-        response.data.project?.id;
+     // Robustly extract project ID
+     const projectData = response.data.project || response.data;
 
-      if (!id) {
-        console.error("No ID found in response:", response.data);
-        toast.error("Roadmap generated but no project ID returned");
-        return;
-      }
+     const id = projectData._id || projectData.id;
 
-      toast.success("Roadmap generated successfully!");
-      navigate(`/projects/${id}`);
-    } catch (err: any) {
-      const errorMsg =
-        err.response?.data?.message ||
-        err.message ||
-        "Failed to generate roadmap. Please try again.";
+     if (!id) {
+       console.error("No project ID found in response:", response.data);
+       toast.error("Roadmap generated but no project ID returned");
+       return;
+     }
 
-      toast.error(errorMsg);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+     toast.success("Roadmap generated successfully!");
+     navigate(`/projects/${id}`); // Correct URL
+   } catch (err: any) {
+     const errorMsg =
+       err.response?.data?.message ||
+       err.message ||
+       "Failed to generate roadmap. Please try again.";
+
+     toast.error(errorMsg);
+   } finally {
+     setIsLoading(false);
+   }
+ };
 
   return (
     <div className="min-h-screen bg-background">
