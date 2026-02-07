@@ -1,3 +1,4 @@
+import generateProjectPlan from "../service/llm.service";
 export const createProjectController = async (req, res) => {
   const { techStack, experienceLevel } = req.body;
   const userId = req.userId; 
