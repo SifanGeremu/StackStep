@@ -1,6 +1,6 @@
 import axios from "axios";
 
-// Get API base URL from environment, default to localhost for development
+//import base url from env
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 // Create axios instance with base config
