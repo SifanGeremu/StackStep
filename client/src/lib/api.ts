@@ -67,7 +67,7 @@ export const apiService = {
    * Response: { id, title, techStack, experienceLevel, phases: [...], createdAt }
    */
   generateRoadmap: async (techStack: string, experienceLevel: string) => {
-    return api.post("/api/projects/", { techStack, experienceLevel });
+    return api.post("/api/projects/generate", { techStack, experienceLevel });
   },
 
   /**

@@ -34,24 +34,46 @@ export default function GeneratePage({ auth }: GeneratePageProps) {
     }
 
     setIsLoading(true)
-    try {
-      // TODO: Replace with real API call to backend
-      // const response = await apiService.generateRoadmap(techStack, experienceLevel)
-      // const { id } = response.data
+    const loadProject = async () => {
+      if (!id) {
+        toast.error("Invalid project ID");
+        setIsLoading(false);
+        return;
+      }
 
-      // Mock successful generation for demo purposes
-      const mockProjectId = `project_${Date.now()}`
+      setIsLoading(true);
+      try {
+        const response = await apiService.getProjectById(id);
+        setProject(response.data);
+      } catch (err: any) {
+        console.error("Failed to load project:", err);
+        toast.error(err.response?.data?.message || "Failed to load project");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+  try {
+    //api call 
+    const response = await apiService.generateRoadmap(
+      techStack,
+      experienceLevel,
+    );
 
-      toast.success('Roadmap generated successfully!')
-      navigate(`/projects/${mockProjectId}`)
-    } catch (err: any) {
-      const errorMsg =
-        err.response?.data?.message ||
-        'Failed to generate roadmap. Please try again.'
-      toast.error(errorMsg)
-    } finally {
-      setIsLoading(false)
-    }
+    // Extract the new project ID from response 
+    const { id } = response.data;
+
+    toast.success("Roadmap generated successfully!");
+    navigate(`/projects/${id}`); 
+  } catch (err: any) {
+    const errorMsg =
+      err.response?.data?.message ||
+      err.message ||
+      "Failed to generate roadmap. Please try again.";
+
+    toast.error(errorMsg);
+  } finally {
+    setIsLoading(false);
+  }
   }
 
   return (

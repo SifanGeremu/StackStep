@@ -39,30 +39,12 @@ console.log("VITE_API_URL from env:", import.meta.env.VITE_API_URL);
   const loadProjects = async () => {
     setIsLoading(true)
     try {
-      // TODO: Replace with real API call to backend
-      // const response = await apiService.getProjects()
-      // setProjects(response.data)
+      
+      const response = await apiService.getProjects()
+      setProjects(response.data)
 
-      // Mock data for demo
-      const mockProjects: Project[] = [
-        {
-          id: '1',
-          title: 'Build a Blog with MERN',
-          techStack: 'MongoDB, Express, React, Node.js',
-          experienceLevel: 'Beginner',
-          createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-          description: 'Learn full-stack development by building a blog app',
-        },
-        {
-          id: '2',
-          title: 'Next.js E-Commerce Site',
-          techStack: 'Next.js, Tailwind CSS, Prisma, PostgreSQL',
-          experienceLevel: 'Intermediate',
-          createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-          description: 'Build a modern e-commerce platform',
-        },
-      ]
-      setProjects(mockProjects)
+      
+
     } catch (err) {
       console.error('Failed to load projects:', err)
       toast.error('Failed to load projects')
