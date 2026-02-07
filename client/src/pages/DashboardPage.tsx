@@ -1,26 +1,26 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { Plus } from 'lucide-react'
-import { toast } from 'sonner'
-import Navbar from '@/components/Navbar'
-import LoadingSpinner from '@/components/LoadingSpinner'
-import { apiService } from '@/lib/api'
-import { AuthState } from '@/hooks/useAuth'
-import { formatDate } from '@/lib/utils'
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Plus } from "lucide-react";
+import { toast } from "sonner";
+import Navbar from "@/components/Navbar";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { apiService } from "@/lib/api";
+import { AuthState } from "@/hooks/useAuth";
+import { formatDate } from "@/lib/utils";
 
 interface Project {
-  id: string
-  title: string
-  techStack: string
-  experienceLevel: string
-  createdAt: string
-  description?: string
+  id: string;
+  title: string;
+  techStack: string;
+  experienceLevel: string;
+  createdAt: string;
+  description?: string;
 }
 
 interface DashboardPageProps {
-  auth: AuthState & { logout: () => void }
+  auth: AuthState & { logout: () => void };
 }
 
 /**
@@ -29,29 +29,25 @@ interface DashboardPageProps {
  * TODO: Connect to GET /api/projects
  */
 export default function DashboardPage({ auth }: DashboardPageProps) {
-  const [projects, setProjects] = useState<Project[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-console.log("VITE_API_URL from env:", import.meta.env.VITE_API_URL);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  console.log("VITE_API_URL from env:", import.meta.env.VITE_API_URL);
   useEffect(() => {
-    loadProjects()
-  }, [])
+    loadProjects();
+  }, []);
 
   const loadProjects = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      
-      const response = await apiService.getProjects()
-      setProjects(response.data)
-
-      
-
+      const response = await apiService.getProjects();
+      setProjects(response.data);
     } catch (err) {
-      console.error('Failed to load projects:', err)
-      toast.error('Failed to load projects')
+      console.error("Failed to load projects:", err);
+      toast.error("Failed to load projects");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -106,7 +102,7 @@ console.log("VITE_API_URL from env:", import.meta.env.VITE_API_URL);
                 {/* Tech Stack Tag */}
                 <div className="mb-4">
                   <span className="inline-block px-3 py-1 bg-accent text-white text-xs font-semibold rounded-full">
-                    {project.techStack.split(',')[0].trim()}
+                    {project.techStack.split(",")[0].trim()}
                   </span>
                 </div>
 
@@ -136,5 +132,5 @@ console.log("VITE_API_URL from env:", import.meta.env.VITE_API_URL);
         )}
       </main>
     </div>
-  )
+  );
 }

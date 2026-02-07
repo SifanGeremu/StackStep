@@ -1,89 +1,75 @@
-'use client';
+"use client";
 
-import React from "react"
-
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Loader } from 'lucide-react'
-import { toast } from 'sonner'
-import Navbar from '@/components/Navbar'
-import { apiService } from '@/lib/api'
-import { AuthState } from '@/hooks/useAuth'
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Loader } from "lucide-react";
+import { toast } from "sonner";
+import Navbar from "@/components/Navbar";
+import { apiService } from "@/lib/api";
+import { AuthState } from "@/hooks/useAuth";
 
 interface GeneratePageProps {
-  auth: AuthState & { logout: () => void }
+  auth: AuthState & { logout: () => void };
 }
 
-/**
- * Generate Page (Protected)
- * Form to create a new project roadmap
- * TODO: Connect to POST /api/projects/generate
- */
 export default function GeneratePage({ auth }: GeneratePageProps) {
-  const navigate = useNavigate()
-  const [techStack, setTechStack] = useState('')
-  const [experienceLevel, setExperienceLevel] = useState('Beginner')
-  const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate();
+  const [techStack, setTechStack] = useState("");
+  const [experienceLevel, setExperienceLevel] = useState("Beginner");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!techStack.trim()) {
-      toast.error('Please enter a tech stack')
-      return
+      toast.error("Please enter a tech stack");
+      return;
     }
 
-    setIsLoading(true)
-    const loadProject = async () => {
+    setIsLoading(true);
+
+    try {
+      const response = await apiService.generateRoadmap(
+        techStack,
+        experienceLevel,
+      );
+
+      // Debug: see exactly what backend returns
+      console.log("Full generate response:", response.data);
+
+      // Extract ID safely (backend might return _id, id, or inside project object)
+      let id =
+        response.data._id ||
+        response.data.id ||
+        response.data.project?._id ||
+        response.data.project?.id;
+
       if (!id) {
-        toast.error("Invalid project ID");
-        setIsLoading(false);
+        console.error("No ID found in response:", response.data);
+        toast.error("Roadmap generated but no project ID returned");
         return;
       }
 
-      setIsLoading(true);
-      try {
-        const response = await apiService.getProjectById(id);
-        setProject(response.data);
-      } catch (err: any) {
-        console.error("Failed to load project:", err);
-        toast.error(err.response?.data?.message || "Failed to load project");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-  try {
-    //api call 
-    const response = await apiService.generateRoadmap(
-      techStack,
-      experienceLevel,
-    );
+      toast.success("Roadmap generated successfully!");
+      navigate(`/projects/${id}`);
+    } catch (err: any) {
+      const errorMsg =
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to generate roadmap. Please try again.";
 
-    // Extract the new project ID from response 
-    const { id } = response.data;
-
-    toast.success("Roadmap generated successfully!");
-    navigate(`/projects/${id}`); 
-  } catch (err: any) {
-    const errorMsg =
-      err.response?.data?.message ||
-      err.message ||
-      "Failed to generate roadmap. Please try again.";
-
-    toast.error(errorMsg);
-  } finally {
-    setIsLoading(false);
-  }
-  }
+      toast.error(errorMsg);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar auth={auth} />
 
-      {/* Main Content */}
       <main className="flex items-center justify-center min-h-[calc(100vh-80px)] px-4 py-12">
         <div className="w-full max-w-2xl">
-          {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-text mb-4">
               Generate Your Roadmap
@@ -94,10 +80,8 @@ export default function GeneratePage({ auth }: GeneratePageProps) {
             </p>
           </div>
 
-          {/* Form Card */}
           <div className="card">
             <form onSubmit={handleSubmit} className="space-y-8">
-              {/* Tech Stack Input */}
               <div>
                 <label
                   htmlFor="techStack"
@@ -119,7 +103,6 @@ export default function GeneratePage({ auth }: GeneratePageProps) {
                 />
               </div>
 
-              {/* Experience Level Select */}
               <div>
                 <label
                   htmlFor="level"
@@ -138,26 +121,27 @@ export default function GeneratePage({ auth }: GeneratePageProps) {
                   <option value="Intermediate">
                     Intermediate - Some experience
                   </option>
-                  <option value="Advanced">Advanced - Experienced developer</option>
+                  <option value="Advanced">
+                    Advanced - Experienced developer
+                  </option>
                 </select>
               </div>
 
-              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={isLoading}
                 className="w-full px-6 py-4 bg-accent text-white text-lg font-bold rounded-lg hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
               >
                 {isLoading && <Loader size={20} className="animate-spin" />}
-                {isLoading ? 'Generating...' : 'Generate Roadmap'}
+                {isLoading ? "Generating..." : "Generate Roadmap"}
               </button>
 
-              {/* Help Text */}
               <div className="p-4 bg-background border-2 border-border-color rounded-lg">
                 <p className="text-text-light text-sm">
                   💡 <strong>Tip:</strong> Be specific about the tech stack.
-                  Include frameworks, databases, and tools you want to learn. Our
-                  AI will create a phased roadmap with clear tasks for each phase.
+                  Include frameworks, databases, and tools you want to learn.
+                  Our AI will create a phased roadmap with clear tasks for each
+                  phase.
                 </p>
               </div>
             </form>
@@ -165,5 +149,5 @@ export default function GeneratePage({ auth }: GeneratePageProps) {
         </div>
       </main>
     </div>
-  )
+  );
 }

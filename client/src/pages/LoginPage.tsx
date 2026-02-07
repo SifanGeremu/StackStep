@@ -2,7 +2,7 @@
 
 import React from "react";
 
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { apiService } from "@/lib/api";
@@ -20,10 +20,11 @@ export default function LoginPage({ auth }: LoginPageProps) {
   const [error, setError] = useState("");
   console.log("Current API base URL:", import.meta.env.VITE_API_URL);
   // Redirect to dashboard if already logged in
-  if (auth.isAuthenticated) {
-    navigate("/dashboard");
-    return null;
-  }
+  useEffect(() => {
+    if (auth.isAuthenticated) {
+      navigate("/dashboard");
+    }
+  }, [auth.isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

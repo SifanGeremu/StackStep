@@ -1,40 +1,40 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
-import { ChevronDown, CheckCircle2 } from 'lucide-react'
-import { toast } from 'sonner'
-import Navbar from '@/components/Navbar'
-import LoadingSpinner from '@/components/LoadingSpinner'
-import { apiService } from '@/lib/api'
-import { AuthState } from '@/hooks/useAuth'
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { ChevronDown, CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
+import Navbar from "@/components/Navbar";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { apiService } from "@/lib/api";
+import { AuthState } from "@/hooks/useAuth";
 
 interface Task {
-  id: string
-  title: string
-  description: string
-  expectedOutcome: string
+  id: string;
+  title: string;
+  description: string;
+  expectedOutcome: string;
 }
 
 interface Phase {
-  id: string
-  title: string
-  description?: string
-  tasks: Task[]
+  id: string;
+  title: string;
+  description?: string;
+  tasks: Task[];
 }
 
 interface ProjectDetail {
-  id: string
-  title: string
-  techStack: string
-  experienceLevel: string
-  description: string
-  phases: Phase[]
-  createdAt: string
+  id: string;
+  title: string;
+  techStack: string;
+  experienceLevel: string;
+  description: string;
+  phases: Phase[];
+  createdAt: string;
 }
 
 interface ProjectDetailPageProps {
-  auth: AuthState & { logout: () => void }
+  auth: AuthState & { logout: () => void };
 }
 
 /**
@@ -43,31 +43,41 @@ interface ProjectDetailPageProps {
  * TODO: Connect to GET /api/projects/:id
  */
 export default function ProjectDetailPage({ auth }: ProjectDetailPageProps) {
-  const { id } = useParams()
-  const [project, setProject] = useState<ProjectDetail | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [expandedPhase, setExpandedPhase] = useState<string | null>(null)
+  const { id } = useParams();
+  const [project, setProject] = useState<ProjectDetail | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [expandedPhase, setExpandedPhase] = useState<string | null>(null);
 
   useEffect(() => {
-    loadProject()
-  }, [id])
+    if (!id) {
+      setIsLoading(false);
+      toast.error("Invalid project id");
+      return;
+    }
+
+    loadProject();
+  }, [id]);
 
   const loadProject = async () => {
-    setIsLoading(true)
-    try {
-      
-       const response = await apiService.getProjectById(id!)
-      setProject(response.data)
+    console.log("Current project ID from URL:", id); // ← this will show us what's wrong
 
-    
-     
-    } catch (err) {
-      console.error('Failed to load project:', err)
-      toast.error('Failed to load project')
-    } finally {
-      setIsLoading(false)
+    if (!id || id === "undefined") {
+      toast.error("No valid project ID in URL");
+      setIsLoading(false);
+      return;
     }
-  }
+
+    setIsLoading(true);
+    try {
+      const response = await apiService.getProjectById(id);
+      setProject(response.data);
+    } catch (err: any) {
+      console.error("Failed to load project:", err);
+      toast.error(err.response?.data?.message || "Failed to load project");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -75,7 +85,7 @@ export default function ProjectDetailPage({ auth }: ProjectDetailPageProps) {
         <Navbar auth={auth} />
         <LoadingSpinner />
       </div>
-    )
+    );
   }
 
   if (!project) {
@@ -84,14 +94,16 @@ export default function ProjectDetailPage({ auth }: ProjectDetailPageProps) {
         <Navbar auth={auth} />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="card text-center py-16">
-            <h2 className="text-2xl font-bold text-text mb-2">Project not found</h2>
+            <h2 className="text-2xl font-bold text-text mb-2">
+              Project not found
+            </h2>
             <p className="text-text-light">
               The project you're looking for doesn't exist.
             </p>
           </div>
         </main>
       </div>
-    )
+    );
   }
 
   return (
@@ -102,9 +114,7 @@ export default function ProjectDetailPage({ auth }: ProjectDetailPageProps) {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Project Header */}
         <div className="mb-12">
-          <h1 className="text-4xl font-bold text-text mb-4">
-            {project.title}
-          </h1>
+          <h1 className="text-4xl font-bold text-text mb-4">{project.title}</h1>
 
           {/* Meta Info */}
           <div className="flex flex-wrap gap-4 items-center mb-4">
@@ -129,9 +139,7 @@ export default function ProjectDetailPage({ auth }: ProjectDetailPageProps) {
               {/* Phase Header (Accordion Toggle) */}
               <button
                 onClick={() =>
-                  setExpandedPhase(
-                    expandedPhase === phase.id ? null : phase.id
-                  )
+                  setExpandedPhase(expandedPhase === phase.id ? null : phase.id)
                 }
                 className="w-full px-6 py-4 flex items-start justify-between hover:bg-background transition-colors"
               >
@@ -153,7 +161,7 @@ export default function ProjectDetailPage({ auth }: ProjectDetailPageProps) {
                 <ChevronDown
                   size={24}
                   className={`text-accent transition-transform flex-shrink-0 ml-4 ${
-                    expandedPhase === phase.id ? 'rotate-180' : ''
+                    expandedPhase === phase.id ? "rotate-180" : ""
                   }`}
                 />
               </button>
@@ -214,8 +222,8 @@ export default function ProjectDetailPage({ auth }: ProjectDetailPageProps) {
             Ready to start learning?
           </h3>
           <p className="text-text-light mb-6">
-            Follow each task in order. Don't rush—understanding each step is more
-            important than speed.
+            Follow each task in order. Don't rush—understanding each step is
+            more important than speed.
           </p>
           <button className="inline-block px-8 py-3 bg-accent text-white font-semibold rounded-lg hover:bg-accent-hover transition-colors">
             Start Learning
@@ -223,5 +231,5 @@ export default function ProjectDetailPage({ auth }: ProjectDetailPageProps) {
         </div>
       </main>
     </div>
-  )
+  );
 }
