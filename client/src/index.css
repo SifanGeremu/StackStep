@@ -1,0 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-text font-sans;
+  }
+
+  h1 {
+    @apply text-4xl font-bold text-text;
+  }
+
+  h2 {
+    @apply text-3xl font-bold text-text;
+  }
+
+  h3 {
+    @apply text-2xl font-bold text-text;
+  }
+
+  p {
+    @apply text-base text-text-light leading-relaxed;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-accent text-white px-6 py-3 rounded-lg font-semibold hover:bg-accent-hover transition-colors;
+  }
+
+  .btn-secondary {
+    @apply bg-white border-2 border-accent text-accent px-6 py-3 rounded-lg font-semibold hover:bg-accent hover:text-white transition-colors;
+  }
+
+  .card {
+    @apply bg-card-bg border border-border-color rounded-lg p-6 shadow-sm;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 border-2 border-border-color rounded-lg focus:outline-none focus:border-accent bg-white text-text;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Smooth transitions */
+button, a {
+  @apply transition-all duration-200;
+}
+
+/* Remove default input styles */
+input, textarea, select {
+  @apply font-sans;
+}
