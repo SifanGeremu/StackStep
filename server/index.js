@@ -14,7 +14,7 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: ["https://stack-step.vercel.app/login"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -32,7 +32,7 @@ app.use("/api/auth/register", registerRoute);
 app.use("/api/auth/login", loginRoute);
 
 // Project routes
-app.use("/api/projects", projectRoutes); 
+app.use("/api/projects", projectRoutes);
 
 // 404 handler
 app.use((req, res) => {
