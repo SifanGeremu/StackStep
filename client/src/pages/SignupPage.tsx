@@ -1,63 +1,60 @@
-'use client';
+"use client";
 
-import React from "react"
-
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { toast } from 'sonner'
-import { apiService } from '@/lib/api'
-import { AuthState } from '@/hooks/useAuth'
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { apiService } from "@/lib/api";
+import { AuthState } from "@/hooks/useAuth";
 
 interface SignupPageProps {
-  auth: AuthState & { login: (token: string, email: string) => void }
+  auth: AuthState & { login: (token: string, email: string) => void };
 }
 
-
 export default function SignupPage({ auth }: SignupPageProps) {
-  const navigate = useNavigate()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
+  const navigate = useNavigate();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   // Redirect to dashboard if already logged in
   if (auth.isAuthenticated) {
-    navigate('/dashboard')
-    return null
+    navigate("/dashboard");
+    return null;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
+    e.preventDefault();
+    setError("");
 
-    if (!email || !password || !confirmPassword) {
-      setError('Please fill in all fields')
-      toast.error('Please fill in all fields')
-      return
+    if (!name || !email || !password || !confirmPassword) {
+      setError("Please fill in all fields");
+      toast.error("Please fill in all fields");
+      return;
     }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match')
-      toast.error('Passwords do not match')
-      return
+      setError("Passwords do not match");
+      toast.error("Passwords do not match");
+      return;
     }
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters')
-      toast.error('Password must be at least 6 characters')
-      return
+      setError("Password must be at least 6 characters");
+      toast.error("Password must be at least 6 characters");
+      return;
     }
 
-    setIsLoading(true)
-    try {
-     
-      const response = await apiService.signup(email, password);
+    setIsLoading(true);
 
-      
+    try {
+      // Pass name to the signup function
+      const response = await apiService.signup(email, password, name);
+
       const { token, user } = response.data;
 
-      
       auth.login(token, user?.email || email);
 
       toast.success("Account created successfully!");
@@ -73,7 +70,7 @@ export default function SignupPage({ auth }: SignupPageProps) {
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
@@ -94,6 +91,25 @@ export default function SignupPage({ auth }: SignupPageProps) {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Name Field – added here */}
+            <div>
+              <label
+                htmlFor="name"
+                className="block text-sm font-semibold text-text mb-2"
+              >
+                Full Name
+              </label>
+              <input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="John Doe"
+                className="input-field"
+                disabled={isLoading}
+              />
+            </div>
+
             {/* Email Field */}
             <div>
               <label
@@ -157,7 +173,7 @@ export default function SignupPage({ auth }: SignupPageProps) {
               disabled={isLoading}
               className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Creating account...' : 'Sign Up'}
+              {isLoading ? "Creating account..." : "Sign Up"}
             </button>
           </form>
 
@@ -170,7 +186,7 @@ export default function SignupPage({ auth }: SignupPageProps) {
 
           {/* Login Link */}
           <p className="text-center text-text-light text-sm">
-            Already have an account?{' '}
+            Already have an account?{" "}
             <Link
               to="/login"
               className="text-accent font-semibold hover:underline"
@@ -181,5 +197,5 @@ export default function SignupPage({ auth }: SignupPageProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }

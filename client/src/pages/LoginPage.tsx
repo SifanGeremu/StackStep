@@ -12,11 +12,6 @@ interface LoginPageProps {
   auth: AuthState & { login: (token: string, email: string) => void };
 }
 
-
- * Login Page
- * Form for user authentication
- * TODO: Connect to POST /api/auth/login
- */
 export default function LoginPage({ auth }: LoginPageProps) {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -41,27 +36,26 @@ export default function LoginPage({ auth }: LoginPageProps) {
     }
 
     setIsLoading(true);
-   try {
-    
-     const response = await apiService.login(email, password);
+    try {
+      const response = await apiService.login(email, password);
 
-     const { token, user } = response.data; 
+      const { token, user } = response.data;
 
-     auth.login(token, user?.email || email); 
+      auth.login(token, user?.email || email);
 
-     toast.success("Welcome back!");
-     navigate("/dashboard");
-   } catch (err: any) {
-     const errorMsg =
-       err.response?.data?.message ||
-       err.message ||
-       "Login failed. Please try again.";
+      toast.success("Welcome back!");
+      navigate("/dashboard");
+    } catch (err: any) {
+      const errorMsg =
+        err.response?.data?.message ||
+        err.message ||
+        "Login failed. Please try again.";
 
-     setError(errorMsg);
-     toast.error(errorMsg);
-   } finally {
-     setIsLoading(false);
-   }
+      setError(errorMsg);
+      toast.error(errorMsg);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
