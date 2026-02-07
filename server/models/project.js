@@ -17,6 +17,7 @@ const PhaseSchema = new mongoose.Schema({
 });
 
 const ProjectSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   techStack: { type: String, required: true },
   projectTitle: { type: String, required: true },
   projectDescription: { type: String },

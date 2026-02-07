@@ -1,12 +1,13 @@
 import Project from "../models/project.js";
 
-export const saveProject = async (techStack, llmOutput) => {
+export const saveProject = async (techStack, llmOutput, userId) => {
   try {
     if (!llmOutput?.phases) {
       throw new Error("Invalid LLM output");
     }
 
     const project = new Project({
+      user: userId,
       techStack,
       projectTitle: llmOutput.projectTitle,
       projectDescription: llmOutput.projectDescription,

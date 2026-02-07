@@ -3,6 +3,7 @@ import { saveProject } from "../service/projectService.js";
 
 export const createProjectController = async (req, res) => {
   const { techStack, experienceLevel } = req.body;
+  const userId = req.user?._id || req.user?.id || req.user;
 
   try {
     // Generate LLM plan
@@ -13,7 +14,7 @@ export const createProjectController = async (req, res) => {
     }
 
     // Save to MongoDB
-    const savedProject = await saveProject(techStack, llmPlan.plan);
+    const savedProject = await saveProject(techStack, llmPlan.plan, userId);
 
     if (savedProject.error) {
       return res.status(500).json({ message: "Project save failed" });

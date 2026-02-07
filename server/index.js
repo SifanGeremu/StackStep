@@ -4,33 +4,42 @@ import cors from "cors";
 import connectDB from "./db.js";
 import registerRoute from "./routes/register.route.js";
 import loginRoute from "./routes/login.route.js";
-import authMiddleware from "./middleware/auth.js";
 import projectRoutes from "./routes/project.route.js";
-const app = express();
-const PORT = process.env.PORT || 5000;
 
+const app = express();
+const PORT = process.env.PORT;
+
+// Middleware
 app.use(express.json());
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   }),
 );
 
-// Connect MongoDB Atlas
+// Connect DB
 connectDB(process.env.ATLAS_URI);
 
 // Test route
 app.get("/", (req, res) => res.send("Hello World!"));
 
+// Auth routes
+app.use("/api/auth/register", registerRoute);
+app.use("/api/auth/login", loginRoute);
 
-//register route
-app.use("/api",registerRoute);
-//login route 
-app.use("/api",loginRoute)
+// Project routes
+app.use("/api/projects", projectRoutes); 
 
-//project routes
-app.use("/api",projectRoutes)
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ message: "Route not found" });
+});
 
-//Start server
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

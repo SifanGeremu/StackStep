@@ -6,13 +6,12 @@ import signupLimiter from "../middleware/SignupLimiter.js";
 
 const router = express.Router();
 
-router.post("/register", signupLimiter, registerValidation, (req, res) => {
+router.post("/", signupLimiter, registerValidation, (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const firstError = errors.array()[0].msg; 
+    const firstError = errors.array()[0].msg;
     return res.status(400).json({ errors: [firstError] });
   }
-
 
   return registerController(req, res);
 });
