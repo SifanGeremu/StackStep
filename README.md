@@ -144,9 +144,9 @@ All protected endpoints require `Authorization: Bearer <token>` header.
 
 ## License & Contact
 
-This repo is provided for demonstration and interviewing purposes. Include a LICENSE file if you want to make the project open-source.
+This repo is provided for demonstration and interviewing purposes. 
 
-For questions or a walkthrough, contact: [Your Name] — replace with a direct email or LinkedIn in the repo.
+For questions or a walkthrough, contact: [] 
 
 ---
 
