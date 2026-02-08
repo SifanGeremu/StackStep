@@ -19,7 +19,7 @@ export default function SignupPage({ auth }: SignupPageProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Redirect to dashboard if already logged in (use effect to avoid navigating during render)
+  // Redirect to dashboard if already logged in 
   React.useEffect(() => {
     if (auth.isAuthenticated) {
       navigate("/dashboard");

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-// Lightweight inline modal used instead of Radix Dialog to avoid missing dependency
 import { ChevronDown, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";

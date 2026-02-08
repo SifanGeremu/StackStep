@@ -48,7 +48,7 @@ export default function GeneratePage({ auth }: GeneratePageProps) {
      }
 
      toast.success("Roadmap generated successfully!");
-     navigate(`/projects/${id}`); // Correct URL
+     navigate(`/projects/${id}`); 
    } catch (err: any) {
      const errorMsg =
        err.response?.data?.message ||
