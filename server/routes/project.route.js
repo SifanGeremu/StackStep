@@ -22,14 +22,14 @@ router.get("/:id", authMiddleware, async (req, res) => {
       return res.status(400).json({ message: "Invalid project ID" });
     }
 
-    
     const project = await Project.findById(projectId);
 
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
     }
 
-    const userId = req.user?._id || req.user?.id || req.user;
+    
+    const userId = req.userId || req.user?._id || req.user?.id || req.user;
 
     // If the project has an owner, ensure it matches the authenticated user.
     if (project.user && project.user.toString() !== (userId || "").toString()) {
@@ -60,14 +60,15 @@ router.delete("/:id", authMiddleware, async (req, res) => {
       return res.status(400).json({ message: "Invalid project ID" });
     }
 
-    // Fetch project first
+    // Fetch project 
     const project = await Project.findById(projectId);
 
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
     }
 
-    const userId = req.user?._id || req.user?.id || req.user;
+   
+    const userId = req.userId || req.user?._id || req.user?.id || req.user;
 
     // If project has an owner, ensure the requester is the owner.
     if (project.user && project.user.toString() !== (userId || "").toString()) {
@@ -76,7 +77,6 @@ router.delete("/:id", authMiddleware, async (req, res) => {
         .json({ message: "Project not found or access denied" });
     }
 
-    
     if (!project.user) {
       console.warn(
         `Deleting legacy project without owner: ${projectId} by user ${userId}`,

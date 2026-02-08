@@ -6,7 +6,7 @@ export const getProjectsController = async (req, res) => {
 
   try {
     // Only return projects owned by authenticated user
-    const userId = req.user?._id || req.user?.id || req.user;
+    const userId = req.userId || req.user?._id || req.user?.id || req.user;
     const projects = await Project.find({ user: userId })
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
