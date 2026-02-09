@@ -3,7 +3,9 @@
 StackStep helps developers learn tech stacks by generating phased, project-based roadmaps. It pairs an LLM-driven planner with opinionated, actionable tasks so learners can "learn by building" instead of reading large dumps.
 
 This README highlights the architecture, why this project matters, how to run it locally, and where to look when evaluating the code — useful for recruiters and engineers reviewing the repository.
-<img width="853" height="1280" alt="image" src="https://github.com/user-attachments/assets/2c7cec37-3b96-4802-8003-d5c7bd1226f2" />
+
+<img width="852" height="607" alt="image" src="https://github.com/user-attachments/assets/5f2cc97c-c42d-4e76-8452-4de9910a5c79" />
+
 
 
 ## Elevator Pitch
