@@ -55,7 +55,14 @@ export const apiService = {
   },
 
   deleteProject: async (id: string) => {
-    return api.delete(`/api/projects/delete/${id}`);
+    return api.delete(`/api/projects/${id}`);
+  },
+  updateTaskStatus: async (
+    projectId: string,
+    taskId: string,
+    status: string,
+  ) => {
+    return api.put(`/api/projects/${projectId}/tasks/${taskId}`, { status });
   },
 };
 
