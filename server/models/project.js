@@ -2,7 +2,16 @@ import mongoose from "mongoose";
 
 const TaskSchema = new mongoose.Schema({
   order: { type: Number, required: true },
+  title: { type: String },
   description: { type: String, required: true },
+  // tracking fields
+  status: {
+    type: String,
+    enum: ["pending", "in-progress", "completed"],
+    default: "pending",
+  },
+  startedAt: { type: Date },
+  completedAt: { type: Date },
 });
 
 const PhaseSchema = new mongoose.Schema({
