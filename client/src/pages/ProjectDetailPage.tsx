@@ -10,7 +10,6 @@ import { apiService } from "@/lib/api";
 import { AuthState } from "@/hooks/useAuth";
 
 interface Task {
-  
   id?: string;
   _id?: string;
   order?: number;
@@ -49,7 +48,6 @@ interface ProjectDetailPageProps {
   auth: AuthState & { logout: () => void };
 }
 
-
 export default function ProjectDetailPage({ auth }: ProjectDetailPageProps) {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -58,6 +56,46 @@ export default function ProjectDetailPage({ auth }: ProjectDetailPageProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [expandedPhase, setExpandedPhase] = useState<string | null>(null);
+
+  // Update task status (optimistic UI)
+  const updateTaskStatus = async (
+    projectId: string,
+    taskId: string,
+    status: "pending" | "in-progress" | "completed",
+  ) => {
+    const prev = project;
+    try {
+      // optimistic update
+      setProject((p) => {
+        if (!p) return p;
+        const copy: any = JSON.parse(JSON.stringify(p));
+        for (const phase of copy.phases || []) {
+          for (const task of phase.tasks || []) {
+            if ((task._id || task.id || "") === taskId) {
+              task.status = status;
+              if (status === "in-progress")
+                task.startedAt = new Date().toISOString();
+              if (status === "completed")
+                task.completedAt = new Date().toISOString();
+              if (status === "pending") {
+                task.startedAt = undefined;
+                task.completedAt = undefined;
+              }
+            }
+          }
+        }
+        return copy;
+      });
+
+      await apiService.updateTaskStatus(projectId, taskId, status);
+      toast.success("Task updated");
+    } catch (err: any) {
+      console.error("Failed to update task status:", err);
+      toast.error(err?.response?.data?.message || "Failed to update task");
+      // revert
+      setProject(prev);
+    }
+  };
 
   useEffect(() => {
     if (!id || id === "undefined") {
@@ -93,6 +131,72 @@ export default function ProjectDetailPage({ auth }: ProjectDetailPageProps) {
     fetchProject();
   }, [id]);
 
+  const excludedTaskKeys = [
+    "id",
+    "_id",
+    "order",
+    "title",
+    "description",
+    "desc",
+    "body",
+    "expectedOutcome",
+    "expected_outcome",
+    "outcome",
+    "status",
+    "startedAt",
+    "completedAt",
+  ];
+
+  const prettifyKey = (k: string) =>
+    k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
+  const renderValue = (val: any) => {
+    if (val === null || typeof val === "undefined")
+      return <span className="text-text-light">—</span>;
+    if (
+      typeof val === "string" ||
+      typeof val === "number" ||
+      typeof val === "boolean"
+    )
+      return <span className="text-text">{String(val)}</span>;
+    if (Array.isArray(val)) {
+      if (val.length === 0) return <span className="text-text-light">[]</span>;
+      return (
+        <ul className="list-disc ml-4 text-sm text-text-light">
+          {val.slice(0, 6).map((v, i) => (
+            <li key={i}>
+              {typeof v === "object" ? JSON.stringify(v) : String(v)}
+            </li>
+          ))}
+          {val.length > 6 && <li>...and {val.length - 6} more</li>}
+        </ul>
+      );
+    }
+    if (typeof val === "object") {
+      const entries = Object.entries(val || {}).slice(0, 6);
+      if (entries.length === 0)
+        return <span className="text-text-light">{{}}</span>;
+      return (
+        <div className="space-y-1 text-sm text-text-light">
+          {entries.map(([k, v]) => (
+            <div key={k}>
+              <span className="font-medium text-text">{prettifyKey(k)}:</span>{" "}
+              <span className="text-text">
+                {typeof v === "object" ? JSON.stringify(v) : String(v)}
+              </span>
+            </div>
+          ))}
+          {Object.keys(val).length > 6 && (
+            <div className="text-xs text-text-light">
+              +{Object.keys(val).length - 6} more
+            </div>
+          )}
+        </div>
+      );
+    }
+    return <span className="text-text">{String(val)}</span>;
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
@@ -125,97 +229,85 @@ export default function ProjectDetailPage({ auth }: ProjectDetailPageProps) {
       <Navbar auth={auth} />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Project Header */}
-        <div className="mb-12">
-          <div className="flex items-start justify-between gap-4">
+        {/* Project Header - Hero with stats and actions */}
+        <div className="mb-8 p-6 rounded-lg bg-gradient-to-r from-accent/10 to-accent/5 border border-border-color">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="flex-1">
-              <h1 className="text-4xl font-bold text-text mb-4">
+              <h1 className="text-3xl md:text-4xl font-extrabold text-text mb-2 leading-tight">
                 {project.title || project.projectTitle}
               </h1>
+              <p className="text-sm text-text-light mb-4 max-w-2xl">
+                {project.description ||
+                  project.projectDescription ||
+                  "A focused, hands-on roadmap to build something real with this tech stack. Follow the phases and mark tasks as you go."}
+              </p>
 
-              {/* Meta Info */}
-              <div className="flex flex-wrap gap-4 items-center mb-4">
-                <span className="inline-block px-4 py-2 bg-accent text-white text-sm font-semibold rounded-full">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="inline-block px-3 py-1 bg-accent text-white text-xs font-semibold rounded-full">
                   {project.techStack}
                 </span>
-                <span className="inline-block px-4 py-2 bg-background border-2 border-border-color text-text text-sm font-semibold rounded-full">
+                <span className="inline-block px-3 py-1 bg-background border border-border-color text-text text-xs font-semibold rounded-full">
                   {project.experienceLevel || project.level} Level
                 </span>
               </div>
-
-              {/* Description */}
-              <p className="text-text-light text-lg leading-relaxed">
-                {project.description || project.projectDescription}
-              </p>
             </div>
 
-            <div className="flex-shrink-0">
-              <button
-                onClick={() => setShowDeleteModal(true)}
-                disabled={isDeleting}
-                className="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:opacity-50"
-              >
-                {isDeleting ? "Deleting…" : "Delete Project"}
-              </button>
-
-              {showDeleteModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center">
-                  <div
-                    className="absolute inset-0 bg-black/50"
-                    onClick={() => setShowDeleteModal(false)}
-                  />
-
-                  <div className="relative bg-background p-6 rounded-lg z-10 max-w-lg w-full">
-                    <h3 className="text-lg font-semibold mb-2">
-                      Delete Project
-                    </h3>
-                    <p className="text-sm text-text-light">
-                      This will permanently delete the project and all
-                      associated data. This action cannot be undone.
-                    </p>
-
-                    <div className="mt-4 flex gap-2 justify-end">
-                      <button
-                        onClick={() => setShowDeleteModal(false)}
-                        className="px-4 py-2 bg-background border border-border-color text-text font-semibold rounded-lg hover:bg-gray-50"
-                      >
-                        Cancel
-                      </button>
-
-                      <button
-                        onClick={async () => {
-                          try {
-                            setIsDeleting(true);
-                            const projectId = id || project._id || project.id;
-                            if (!projectId) {
-                              toast.error("Missing project id");
-                              return;
-                            }
-                            await apiService.deleteProject(
-                              projectId.toString(),
-                            );
-                            toast.success("Project deleted");
-                            setShowDeleteModal(false);
-                            navigate(`/projects`);
-                          } catch (err: any) {
-                            console.error("Failed to delete project:", err);
-                            toast.error(
-                              err.response?.data?.message ||
-                                "Failed to delete project",
-                            );
-                          } finally {
-                            setIsDeleting(false);
-                          }
-                        }}
-                        disabled={isDeleting}
-                        className="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:opacity-50"
-                      >
-                        {isDeleting ? "Deleting…" : "Delete Project"}
-                      </button>
-                    </div>
-                  </div>
+            <div className="flex-shrink-0 flex flex-col items-end gap-3">
+              <div className="w-full md:w-auto text-right">
+                <div className="text-xs text-text-light">Progress</div>
+                <div className="w-56 bg-gray-100 rounded-full h-3 mt-1 overflow-hidden">
+                  {(() => {
+                    const phasesCount = (project.phases || []).length;
+                    const tasks = (project.phases || []).flatMap(
+                      (p) => p.tasks || [],
+                    );
+                    const tasksCount = tasks.length;
+                    const completed = tasks.filter(
+                      (t: any) => t.status === "completed",
+                    ).length;
+                    const pct = tasksCount
+                      ? Math.round((completed / tasksCount) * 100)
+                      : 0;
+                    return (
+                      <div
+                        className="h-3 bg-accent"
+                        style={{ width: `${pct}%` }}
+                      />
+                    );
+                  })()}
                 </div>
-              )}
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    // expand first phase
+                    const first = project.phases?.[0];
+                    if (first) setExpandedPhase(first.id || first._id || first);
+                    // scroll to phases area
+                    const el = document.querySelector("[data-phases-anchor]");
+                    if (el)
+                      el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                  className="px-4 py-2 bg-accent text-white font-semibold rounded-lg hover:bg-accent-hover"
+                >
+                  Start Project
+                </button>
+
+                <button
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(window.location.href);
+                      toast.success("Link copied to clipboard");
+                    } catch (e) {
+                      toast.error("Failed to copy link");
+                    }
+                  }}
+                  className="px-3 py-2 bg-background border border-border-color text-text rounded-lg"
+                >
+                  Copy Link
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -347,26 +439,87 @@ export default function ProjectDetailPage({ auth }: ProjectDetailPageProps) {
                             </div>
                           )}
 
+                          {/* Task status & actions */}
+                          <div className="mt-3 flex items-center justify-between gap-4">
+                            <div className="flex items-center gap-3">
+                              <span
+                                className={`inline-block px-3 py-1 text-xs font-semibold rounded-full capitalize ${
+                                  task.status === "completed"
+                                    ? "bg-green-100 text-green-800"
+                                    : task.status === "in-progress"
+                                      ? "bg-yellow-100 text-yellow-800"
+                                      : "bg-gray-100 text-gray-800"
+                                }`}
+                              >
+                                {task.status || "pending"}
+                              </span>
+                              {task.startedAt && (
+                                <span className="text-xs text-text-light">
+                                  Started:{" "}
+                                  {new Date(task.startedAt).toLocaleString()}
+                                </span>
+                              )}
+                              {task.completedAt && (
+                                <span className="text-xs text-text-light">
+                                  Completed:{" "}
+                                  {new Date(task.completedAt).toLocaleString()}
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() =>
+                                  updateTaskStatus(
+                                    id || project._id || project.id || "",
+                                    task._id || task.id || "",
+                                    "in-progress",
+                                  )
+                                }
+                                disabled={
+                                  task.status === "in-progress" ||
+                                  task.status === "completed"
+                                }
+                                className="px-3 py-1 bg-yellow-500 text-white text-sm font-semibold rounded hover:bg-yellow-600 disabled:opacity-50"
+                              >
+                                Start
+                              </button>
+
+                              <button
+                                onClick={() =>
+                                  updateTaskStatus(
+                                    id || project._id || project.id || "",
+                                    task._id || task.id || "",
+                                    "completed",
+                                  )
+                                }
+                                disabled={task.status === "completed"}
+                                className="px-3 py-1 bg-green-600 text-white text-sm font-semibold rounded hover:bg-green-700 disabled:opacity-50"
+                              >
+                                Complete
+                              </button>
+                            </div>
+                          </div>
+
                           {/* Render any additional task fields for transparency */}
                           {Object.keys(task).some(
-                            (k) =>
-                              ![
-                                "id",
-                                "_id",
-                                "order",
-                                "title",
-                                "description",
-                                "desc",
-                                "body",
-                                "expectedOutcome",
-                                "expected_outcome",
-                                "outcome",
-                              ].includes(k),
+                            (k) => !excludedTaskKeys.includes(k),
                           ) && (
                             <div className="mt-3 bg-gray-50 p-3 rounded border border-border-color text-sm text-text-light">
-                              <pre className="whitespace-pre-wrap break-words">
-                                {JSON.stringify(task, null, 2)}
-                              </pre>
+                              <div className="space-y-2">
+                                {Object.keys(task)
+                                  .filter((k) => !excludedTaskKeys.includes(k))
+                                  .map((k) => (
+                                    <div key={k} className="flex gap-2">
+                                      <div className="w-36 text-xs text-text-light">
+                                        {prettifyKey(k)}
+                                      </div>
+                                      <div className="flex-1">
+                                        {renderValue((task as any)[k])}
+                                      </div>
+                                    </div>
+                                  ))}
+                              </div>
                             </div>
                           )}
                         </div>
