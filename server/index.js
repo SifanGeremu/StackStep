@@ -7,18 +7,27 @@ import loginRoute from "./routes/login.route.js";
 import projectRoutes from "./routes/project.route.js";
 
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 4000;
 
 // Middleware
 app.use(express.json());
 
+// Configure CORS origins: include local dev client when not in production
+const allowedOrigins = ["https://stack-step.vercel.app"];
+if (process.env.NODE_ENV !== "production") {
+  allowedOrigins.push("http://localhost:5173", "http://127.0.0.1:5173");
+}
+if (process.env.CLIENT_ORIGIN) {
+  allowedOrigins.push(process.env.CLIENT_ORIGIN);
+}
+
 app.use(
   cors({
-    origin: ["https://stack-step.vercel.app"],
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
-  }),
+  })
 );
 
 // Connect DB
