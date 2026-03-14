@@ -1,6 +1,6 @@
 # StackStep
 
-StackStep helps developers learn tech stacks by generating phased, project-based roadmaps. It pairs an LLM-driven planner with opinionated, actionable tasks so learners can "learn by building" instead of reading large dumps.
+StackStep helps developers learn tech stacks by generating phased, project-based roadmaps. It pairs an LLM-driven planner with opinionated, actionable tasks so learners can "learn by building" instead of reading large dumps and tutorials
 
 This README highlights the architecture, why this project matters, how to run it locally, and where to look when evaluating the code
 
