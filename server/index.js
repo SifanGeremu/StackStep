@@ -10,6 +10,9 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 const mongoUri = process.env.MONGO_URI || process.env.ATLAS_URI;
 
+// Render sits behind a proxy, so rate limiting needs the forwarded IP.
+app.set("trust proxy", 1);
+
 // Middleware
 app.use(express.json());
 
