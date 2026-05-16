@@ -8,6 +8,7 @@ import projectRoutes from "./routes/project.route.js";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+const mongoUri = process.env.MONGO_URI || process.env.ATLAS_URI;
 
 // Middleware
 app.use(express.json());
@@ -30,9 +31,6 @@ app.use(
   })
 );
 
-// Connect DB
-connectDB(process.env.ATLAS_URI);
-
 // Test route
 app.get("/", (req, res) => res.send("Hello World!"));
 
@@ -49,6 +47,17 @@ app.use((req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+const startServer = async () => {
+  try {
+    await connectDB(mongoUri);
+
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("Failed to start server:", error.message);
+    process.exit(1);
+  }
+};
+
+startServer();

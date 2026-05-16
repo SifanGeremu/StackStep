@@ -1,13 +1,12 @@
 import mongoose from "mongoose";
 
 export async function connectDB(uri) {
-  try {
-    await mongoose.connect(uri); 
-    console.log("MongoDB Atlas connected");
-  } catch (err) {
-    console.error("Database connection error:", err.message);
-    process.exit(1);
+  if (!uri) {
+    throw new Error("MongoDB connection string is not configured.");
   }
+
+  await mongoose.connect(uri);
+  console.log("MongoDB Atlas connected");
 }
 
 export default connectDB;
