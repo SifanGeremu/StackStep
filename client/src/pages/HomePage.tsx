@@ -1,49 +1,180 @@
-"use client";
-
 import { useNavigate, Link } from "react-router-dom";
+import {
+  Layers,
+  Map,
+  Hammer,
+  Sparkles,
+  CheckCircle2,
+  Circle,
+  ArrowRight,
+  Target,
+  ListChecks,
+  BookOpen,
+} from "lucide-react";
 import { AuthState } from "@/hooks/useAuth";
 
 interface HomePageProps {
   auth: AuthState;
 }
 
+const STACKS = [
+  "MERN",
+  "Next.js + Tailwind",
+  "React + Firebase",
+  "Django + PostgreSQL",
+  "Go + React",
+  "FastAPI + Vue",
+];
+
+const STEPS = [
+  {
+    icon: Layers,
+    title: "Describe your stack",
+    description:
+      "Enter any combination of technologies — frameworks, databases, and tools.",
+  },
+  {
+    icon: Sparkles,
+    title: "Get a phased roadmap",
+    description:
+      "AI generates a structured plan with phases, tasks, and clear outcomes.",
+  },
+  {
+    icon: Hammer,
+    title: "Build and track progress",
+    description:
+      "Work through actionable tasks and mark them complete as you learn.",
+  },
+];
+
+const FEATURES = [
+  {
+    icon: Target,
+    title: "Project-based learning",
+    description:
+      "Every roadmap centers on building real projects, not passive tutorials.",
+  },
+  {
+    icon: ListChecks,
+    title: "Actionable tasks",
+    description:
+      "Each phase breaks down into concrete steps with expected outcomes.",
+  },
+  {
+    icon: BookOpen,
+    title: "Tailored to your level",
+    description:
+      "Choose beginner, intermediate, or advanced to match where you are.",
+  },
+  {
+    icon: Map,
+    title: "Structured phases",
+    description:
+      "Progress from foundations to deployment with a clear learning path.",
+  },
+];
+
+function RoadmapPreview() {
+  return (
+    <div className="card p-0 overflow-hidden shadow-xl border-border-color/80">
+      <div className="px-5 py-4 border-b border-border-color bg-white flex items-center justify-between">
+        <div>
+          <p className="text-xs font-medium text-accent uppercase tracking-wider">
+            Sample roadmap
+          </p>
+          <h3 className="font-semibold text-text mt-0.5">MERN Stack</h3>
+        </div>
+        <span className="text-xs text-text-light bg-background px-2.5 py-1 rounded-full">
+          Beginner
+        </span>
+      </div>
+
+      <div className="p-4 space-y-3 bg-card-bg">
+        <div className="rounded-lg border border-border-color bg-white overflow-hidden">
+          <div className="px-4 py-3 flex items-center gap-3 border-b border-border-color">
+            <span className="w-7 h-7 rounded-md bg-accent text-white text-sm font-bold flex items-center justify-center shrink-0">
+              1
+            </span>
+            <div className="min-w-0">
+              <p className="font-medium text-text text-sm">Foundation Setup</p>
+              <p className="text-xs text-text-light truncate">
+                Project structure & tooling
+              </p>
+            </div>
+          </div>
+          <div className="px-4 py-3 space-y-2.5">
+            <div className="flex items-center gap-2.5 text-sm">
+              <CheckCircle2 size={16} className="text-accent shrink-0" />
+              <span className="text-text-light line-through">
+                Initialize monorepo
+              </span>
+            </div>
+            <div className="flex items-center gap-2.5 text-sm">
+              <CheckCircle2 size={16} className="text-accent shrink-0" />
+              <span className="text-text">Configure MongoDB connection</span>
+            </div>
+            <div className="flex items-center gap-2.5 text-sm">
+              <Circle size={16} className="text-border-color shrink-0" />
+              <span className="text-text-light">Set up Express API routes</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-border-color bg-white px-4 py-3 flex items-center gap-3 opacity-70">
+          <span className="w-7 h-7 rounded-md bg-accent/20 text-accent text-sm font-bold flex items-center justify-center shrink-0">
+            2
+          </span>
+          <div className="min-w-0">
+            <p className="font-medium text-text text-sm">REST API & Auth</p>
+            <p className="text-xs text-text-light">JWT, CRUD endpoints</p>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-border-color bg-white px-4 py-3 flex items-center gap-3 opacity-50">
+          <span className="w-7 h-7 rounded-md bg-accent/20 text-accent text-sm font-bold flex items-center justify-center shrink-0">
+            3
+          </span>
+          <div className="min-w-0">
+            <p className="font-medium text-text text-sm">React Frontend</p>
+            <p className="text-xs text-text-light">Components & state</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function HomePage({ auth }: HomePageProps) {
   const navigate = useNavigate();
 
   const handleGetStarted = () => {
-    if (auth.isAuthenticated) {
-      navigate("/generate");
-    } else {
-      navigate("/login");
-    }
+    navigate(auth.isAuthenticated ? "/generate" : "/login");
   };
 
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-white border-b-2 border-border-color">
+      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-border-color">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-accent rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">S</span>
+          <div className="flex justify-between items-center h-16 sm:h-20">
+            <Link to="/" className="flex items-center gap-3">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 bg-accent rounded-lg flex items-center justify-center shadow-sm">
+                <span className="text-white font-bold text-base sm:text-lg">
+                  S
+                </span>
               </div>
-              <span className="text-2xl font-bold text-text hidden sm:inline">
+              <span className="text-xl sm:text-2xl font-bold text-text">
                 StackStep
               </span>
-            </div>
+            </Link>
 
-            {/* Auth Links */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               {auth.isAuthenticated ? (
                 <>
-                  <span className="text-text-light text-sm hidden sm:inline">
+                  <span className="text-text-light text-sm hidden md:inline">
                     {auth.userEmail}
                   </span>
-                  <Link
-                    to="/dashboard"
-                    className="px-4 py-2 bg-accent text-white rounded-lg font-semibold hover:bg-accent-hover transition-colors"
-                  >
+                  <Link to="/dashboard" className="btn-primary text-sm sm:text-base">
                     Dashboard
                   </Link>
                 </>
@@ -51,15 +182,15 @@ export default function HomePage({ auth }: HomePageProps) {
                 <>
                   <Link
                     to="/login"
-                    className="px-4 py-2 text-accent font-semibold hover:bg-accent hover:text-white rounded-lg transition-colors"
+                    className="px-3 sm:px-4 py-2 text-accent font-semibold hover:bg-accent/5 rounded-lg"
                   >
                     Sign In
                   </Link>
                   <Link
                     to="/signup"
-                    className="px-4 py-2 bg-accent text-white rounded-lg font-semibold hover:bg-accent-hover transition-colors hidden sm:inline-block"
+                    className="btn-primary text-sm sm:text-base hidden sm:inline-flex"
                   >
-                    Sign Up
+                    Get Started
                   </Link>
                 </>
               )}
@@ -68,101 +199,201 @@ export default function HomePage({ auth }: HomePageProps) {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden flex items-center justify-center min-h-[calc(100vh-80px)] px-4 py-20">
-        {/* Subtle background accent */}
-        <div className="pointer-events-none absolute -top-16 -left-20 w-[520px] h-[520px] rounded-full bg-gradient-to-br from-accent/20 to-purple-200 blur-3xl opacity-60" />
+      {/* Hero */}
+      <section className="relative overflow-hidden">
+        <div className="pointer-events-none absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-accent/15 to-orange-100 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-48 -left-32 w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-accent/10 to-amber-50 blur-3xl" />
 
-        <div className="max-w-4xl w-full text-center space-y-10 z-10">
-          {/* Title */}
-          <div className="space-y-6">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-text leading-tight tracking-tight">
-              Learn Tech Stacks by Building Real Projects
-            </h1>
-            <p className="text-lg sm:text-xl md:text-2xl text-text-light max-w-3xl mx-auto">
-              Generate phased, beginner-friendly project roadmaps for any tech
-              stack — clear, actionable tasks to help you learn by building.
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-20 pb-20 lg:pt-28 lg:pb-28">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <div className="space-y-8">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-border-color text-sm text-text-light">
+                <Sparkles size={14} className="text-accent" />
+                AI-powered learning roadmaps
+              </div>
+
+              <div className="space-y-5">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-text leading-[1.1] tracking-tight text-balance">
+                  Learn tech stacks by building real projects
+                </h1>
+                <p className="text-lg sm:text-xl text-text-light max-w-xl leading-relaxed">
+                  Turn any stack into a phased, beginner-friendly roadmap with
+                  clear tasks and outcomes — so you learn by doing, not just
+                  reading.
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button onClick={handleGetStarted} className="btn-primary inline-flex items-center justify-center gap-2 text-base px-8 py-3.5 rounded-full shadow-lg shadow-accent/20">
+                  Start learning
+                  <ArrowRight size={18} />
+                </button>
+                <Link
+                  to={auth.isAuthenticated ? "/dashboard" : "/signup"}
+                  className="btn-secondary inline-flex items-center justify-center text-base px-8 py-3.5 rounded-full"
+                >
+                  {auth.isAuthenticated ? "View projects" : "Create free account"}
+                </Link>
+              </div>
+
+              <p className="text-sm text-text-light">
+                No credit card required · Works with any tech stack
+              </p>
+            </div>
+
+            <div className="lg:pl-4">
+              <RoadmapPreview />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Supported stacks */}
+      <section className="border-y border-border-color bg-white py-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-center text-sm font-medium text-text-light mb-6">
+            Popular stacks learners start with
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            {STACKS.map((stack) => (
+              <span
+                key={stack}
+                className="px-4 py-2 rounded-full bg-background border border-border-color text-sm font-medium text-text"
+              >
+                {stack}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section className="py-20 sm:py-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <p className="text-sm font-semibold text-accent uppercase tracking-wider mb-3">
+              How it works
+            </p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-text mb-4">
+              From stack to roadmap in minutes
+            </h2>
+            <p className="text-text-light text-lg">
+              Three simple steps to go from "I want to learn X" to a structured
+              project plan you can follow.
             </p>
           </div>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <button
-              onClick={handleGetStarted}
-              aria-label="Get started"
-              className="inline-flex items-center justify-center px-10 py-4 bg-accent text-white text-lg font-semibold rounded-full hover:bg-accent-hover transition-all shadow-xl transform-gpu hover:-translate-y-0.5 active:scale-95"
-            >
-              Get Started
-            </button>
+          <div className="grid md:grid-cols-3 gap-8">
+            {STEPS.map((step, i) => (
+              <div key={step.title} className="relative card p-8 text-center">
+                <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center mx-auto mb-5">
+                  <step.icon size={24} className="text-accent" />
+                </div>
+                <span className="text-xs font-bold text-accent/60 uppercase tracking-wider">
+                  Step {i + 1}
+                </span>
+                <h3 className="font-semibold text-text text-lg mt-2 mb-3">
+                  {step.title}
+                </h3>
+                <p className="text-text-light text-sm leading-relaxed">
+                  {step.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-            <Link
-              to="/signup"
-              className="inline-flex items-center justify-center px-6 py-3 bg-background border border-border-color text-text font-medium rounded-full hover:bg-gray-50 transition"
-            >
-              Create account
-            </Link>
+      {/* Features */}
+      <section className="py-20 sm:py-28 bg-white border-y border-border-color">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <p className="text-sm font-semibold text-accent uppercase tracking-wider mb-3">
+              Why StackStep
+            </p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-text mb-4">
+              Built for developers who learn by building
+            </h2>
+            <p className="text-text-light text-lg">
+              Skip the endless tutorial rabbit holes. Get a focused path with
+              tasks you can actually complete.
+            </p>
           </div>
 
-          {/* Features Grid */}
-          <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {/* Feature 1 */}
-            <div className="card p-6 text-center">
-              <div className="w-14 h-14 bg-accent rounded-lg flex items-center justify-center mb-4 mx-auto shadow-md">
-                <span className="text-white font-bold text-xl">1</span>
+          <div className="grid sm:grid-cols-2 gap-6">
+            {FEATURES.map((feature) => (
+              <div
+                key={feature.title}
+                className="flex gap-5 p-6 rounded-xl border border-border-color bg-card-bg"
+              >
+                <div className="w-11 h-11 bg-accent rounded-lg flex items-center justify-center shrink-0">
+                  <feature.icon size={22} className="text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-text mb-1.5">
+                    {feature.title}
+                  </h3>
+                  <p className="text-text-light text-sm leading-relaxed">
+                    {feature.description}
+                  </p>
+                </div>
               </div>
-              <h3 className="font-semibold text-text mb-2">
-                Tell Us Your Stack
-              </h3>
-              <p className="text-text-light text-sm">
-                Enter any tech stack (MERN, Next.js + Tailwind, Django +
-                Postgres)
-              </p>
-            </div>
-
-            {/* Feature 2 */}
-            <div className="card p-6 text-center">
-              <div className="w-14 h-14 bg-accent rounded-lg flex items-center justify-center mb-4 mx-auto shadow-md">
-                <span className="text-white font-bold text-xl">2</span>
-              </div>
-              <h3 className="font-semibold text-text mb-2">Get a Roadmap</h3>
-              <p className="text-text-light text-sm">
-                Our AI creates phased, beginner-friendly plans
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="card p-6 text-center">
-              <div className="w-14 h-14 bg-accent rounded-lg flex items-center justify-center mb-4 mx-auto shadow-md">
-                <span className="text-white font-bold text-xl">3</span>
-              </div>
-              <h3 className="font-semibold text-text mb-2">
-                Learn by Building
-              </h3>
-              <p className="text-text-light text-sm">
-                Follow clear, actionable tasks and build real projects
-              </p>
-            </div>
+            ))}
           </div>
+        </div>
+      </section>
 
-          {/* Call to Action Footer */}
-          <div className="mt-12 pt-8 border-t-2 border-border-color">
-            <p className="text-text-light mb-4">
-              Ready to start your learning journey?
+      {/* CTA */}
+      <section className="py-20 sm:py-24">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="card p-10 sm:p-14 bg-gradient-to-br from-white to-card-bg border-accent/20 shadow-lg">
+            <h2 className="text-3xl sm:text-4xl font-bold text-text mb-4">
+              Ready to start building?
+            </h2>
+            <p className="text-text-light text-lg mb-8 max-w-xl mx-auto">
+              Generate your first roadmap in under a minute. Pick a stack, choose
+              your level, and start learning.
             </p>
             <button
               onClick={handleGetStarted}
-              className="inline-block px-8 py-3 bg-accent text-white text-lg font-semibold rounded-full hover:bg-accent-hover transition-all hover:shadow-lg active:scale-95"
+              className="btn-primary inline-flex items-center gap-2 text-base px-10 py-3.5 rounded-full shadow-lg shadow-accent/20"
             >
-              Get Started Now
+              Generate your roadmap
+              <ArrowRight size={18} />
             </button>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-card-bg border-t-2 border-border-color py-8 px-4">
-        <div className="max-w-7xl mx-auto text-center text-text-light text-sm">
-          <p>&copy; 2024 StackStep. All rights reserved.</p>
+      <footer className="bg-card-bg border-t border-border-color py-12 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">S</span>
+              </div>
+              <span className="font-bold text-text">StackStep</span>
+            </div>
+
+            <div className="flex items-center gap-6 text-sm text-text-light">
+              <Link to="/login" className="hover:text-accent">
+                Sign In
+              </Link>
+              <Link to="/signup" className="hover:text-accent">
+                Sign Up
+              </Link>
+              {auth.isAuthenticated && (
+                <Link to="/dashboard" className="hover:text-accent">
+                  Dashboard
+                </Link>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-8 pt-8 border-t border-border-color text-center text-text-light text-sm">
+            <p>&copy; {new Date().getFullYear()} StackStep. All rights reserved.</p>
+          </div>
         </div>
       </footer>
     </div>
