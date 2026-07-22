@@ -42,9 +42,21 @@ export default function SignupPage({ auth }: SignupPageProps) {
       return;
     }
 
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters");
-      toast.error("Password must be at least 6 characters");
+    const passwordRules = [
+      password.length >= 8,
+      /[A-Z]/.test(password),
+      /[a-z]/.test(password),
+      /[0-9]/.test(password),
+      /[@$!%*?&]/.test(password),
+    ];
+
+    if (!passwordRules.every(Boolean)) {
+      setError(
+        "Password must be 8+ characters and include uppercase, lowercase, number, and special character",
+      );
+      toast.error(
+        "Password must be 8+ characters and include uppercase, lowercase, number, and special character",
+      );
       return;
     }
 
