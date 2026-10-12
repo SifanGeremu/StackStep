@@ -9,6 +9,11 @@ import projectRoutes from "./routes/project.route.js";
 const app = express();
 const PORT = process.env.PORT || 4000;
 const mongoUri = process.env.MONGO_URI || process.env.ATLAS_URI;
+const mongoEnvVar = process.env.MONGO_URI
+  ? "MONGO_URI"
+  : process.env.ATLAS_URI
+    ? "ATLAS_URI"
+    : "none";
 
 // Render sits behind a proxy, so rate limiting needs the forwarded IP.
 app.set("trust proxy", 1);
@@ -58,6 +63,7 @@ app.use((req, res) => {
 // Start server
 const startServer = async () => {
   try {
+    console.log(`Using MongoDB env var: ${mongoEnvVar}`);
     await connectDB(mongoUri);
 
     app.listen(PORT, () => {

@@ -19,6 +19,7 @@ interface HomePageProps {
 
 const STACKS = [
   "MERN",
+  "AI"
   "Next.js + Tailwind",
   "React + Firebase",
   "Django + PostgreSQL",
