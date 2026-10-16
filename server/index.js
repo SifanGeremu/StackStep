@@ -9,11 +9,6 @@ import projectRoutes from "./routes/project.route.js";
 const app = express();
 const PORT = process.env.PORT || 4000;
 const mongoUri = process.env.MONGO_URI || process.env.ATLAS_URI;
-const mongoEnvVar = process.env.MONGO_URI
-  ? "MONGO_URI"
-  : process.env.ATLAS_URI
-    ? "ATLAS_URI"
-    : "none";
 
 // Render sits behind a proxy, so rate limiting needs the forwarded IP.
 app.set("trust proxy", 1);
@@ -27,7 +22,7 @@ if (process.env.NODE_ENV !== "production") {
   allowedOrigins.push("http://localhost:5173", "http://127.0.0.1:5173");
 }
 if (process.env.CLIENT_ORIGIN) {
-  allowedOrigins.push(process.env.CLIENT_ORIGIN);
+  allowedOrigins.push(...process.env.CLIENT_ORIGIN.split(",").map((origin) => origin.trim().replace(/\/$/, "")));
 }
 
 const corsOptions = {
@@ -60,19 +55,12 @@ app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
-// Start server
-const startServer = async () => {
-  try {
-    console.log(`Using MongoDB env var: ${mongoEnvVar}`);
-    await connectDB(mongoUri);
+// Bind the HTTP port even when Atlas is temporarily unavailable. This keeps
+// health checks and CORS preflights reachable while the database reconnects.
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-  } catch (error) {
-    console.error("Failed to start server:", error.message);
-    process.exit(1);
-  }
-};
-
-startServer();
+connectDB(mongoUri).catch((error) => {
+  console.error("MongoDB connection failed:", error.message);
+});
