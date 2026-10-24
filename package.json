@@ -1,5 +1,6 @@
 {
   "name": "stackstep",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "npm --prefix client run dev",
