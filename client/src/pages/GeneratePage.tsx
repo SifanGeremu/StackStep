@@ -1,150 +1,122 @@
-"use client";
-
-import React, { useState } from "react";
+/* Brief
+   Reader: a learner who wants a new roadmap
+   Question: which stack, and at what level, should this plan be for?
+   Action: generate the roadmap
+   Register: text
+*/
+import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader } from "lucide-react";
-import { toast } from "sonner";
-import Navbar from "@/components/Navbar";
+import Alert from "@/formic/components/Alert";
+import Button from "@/formic/components/Button";
+import Input, { Field, Textarea } from "@/formic/components/Input";
+import Select from "@/formic/components/Select";
+import { useToast } from "@/formic/components/Toast";
+import { iconFor } from "@/formic/components/primitives";
+import { AuthedShell } from "@/components/Shell";
 import { apiService } from "@/lib/api";
-import { AuthState } from "@/hooks/useAuth";
+import type { AuthState } from "@/hooks/useAuth";
 
 interface GeneratePageProps {
   auth: AuthState & { logout: () => void };
 }
 
+const LEVELS = [
+  { value: "Beginner", label: "Beginner - Just starting out" },
+  { value: "Intermediate", label: "Intermediate - Some experience" },
+  { value: "Advanced", label: "Advanced - Experienced developer" },
+];
+
 export default function GeneratePage({ auth }: GeneratePageProps) {
   const navigate = useNavigate();
+  const toast = useToast();
   const [techStack, setTechStack] = useState("");
   const [experienceLevel, setExperienceLevel] = useState("Beginner");
   const [isLoading, setIsLoading] = useState(false);
 
- const handleSubmit = async (e: React.FormEvent) => {
-   e.preventDefault();
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
 
-   if (!techStack.trim()) {
-     toast.error("Please enter a tech stack");
-     return;
-   }
+    if (!techStack.trim()) {
+      toast({ tone: "error", title: "Please enter a tech stack" });
+      return;
+    }
 
-   setIsLoading(true);
+    setIsLoading(true);
 
-   try {
-     const response = await apiService.generateRoadmap(
-       techStack,
-       experienceLevel,
-     );
+    try {
+      const response = await apiService.generateRoadmap(techStack, experienceLevel);
 
-     console.log("Backend response:", response.data);
+      console.log("Backend response:", response.data);
 
-     // Robustly extract project ID
-     const projectData = response.data.project || response.data;
+      const projectData = response.data.project || response.data;
+      const id = projectData._id || projectData.id;
 
-     const id = projectData._id || projectData.id;
+      if (!id) {
+        console.error("No project ID found in response:", response.data);
+        toast({ tone: "error", title: "Roadmap generated but no project ID returned" });
+        return;
+      }
 
-     if (!id) {
-       console.error("No project ID found in response:", response.data);
-       toast.error("Roadmap generated but no project ID returned");
-       return;
-     }
+      toast({ tone: "success", title: "Roadmap generated successfully!" });
+      navigate(`/projects/${id}`);
+    } catch (err: any) {
+      const errorMsg =
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to generate roadmap. Please try again.";
 
-     toast.success("Roadmap generated successfully!");
-     navigate(`/projects/${id}`); 
-   } catch (err: any) {
-     const errorMsg =
-       err.response?.data?.message ||
-       err.message ||
-       "Failed to generate roadmap. Please try again.";
-
-     toast.error(errorMsg);
-   } finally {
-     setIsLoading(false);
-   }
- };
+      toast({ tone: "error", title: errorMsg });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar auth={auth} />
+    <AuthedShell
+      auth={auth}
+      active="generate"
+      title="Generate your roadmap"
+      caption="Tell us which tech stack you want to learn, and we'll create a phased roadmap tailored to your level."
+    >
+      <form onSubmit={handleSubmit} className="mx-auto flex w-full max-w-2xl flex-col gap-6">
+        <Field
+          label="Tech stack"
+          hint="E.g., MERN, Next.js + Tailwind, React + Firebase, Django + PostgreSQL"
+        >
+          <Textarea
+            value={techStack}
+            onChange={(e) => setTechStack(e.target.value)}
+            placeholder="Enter the technologies you want to learn..."
+            disabled={isLoading}
+            rows={4}
+          />
+        </Field>
 
-      <main className="flex items-center justify-center min-h-[calc(100vh-80px)] px-4 py-12">
-        <div className="w-full max-w-2xl">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-text mb-4">
-              Generate Your Roadmap
-            </h1>
-            <p className="text-text-light text-lg">
-              Tell us which tech stack you want to learn, and we'll create a
-              phased roadmap tailored to your level.
-            </p>
-          </div>
+        <Field label="Your experience level">
+          <Select
+            options={LEVELS}
+            value={experienceLevel}
+            onChange={setExperienceLevel}
+            disabled={isLoading}
+          />
+        </Field>
 
-          <div className="card">
-            <form onSubmit={handleSubmit} className="space-y-8">
-              <div>
-                <label
-                  htmlFor="techStack"
-                  className="block text-sm font-semibold text-text mb-3"
-                >
-                  Tech Stack
-                </label>
-                <p className="text-text-light text-sm mb-4">
-                  E.g., MERN, Next.js + Tailwind, React + Firebase, Django +
-                  PostgreSQL
-                </p>
-                <textarea
-                  id="techStack"
-                  value={techStack}
-                  onChange={(e) => setTechStack(e.target.value)}
-                  placeholder="Enter the technologies you want to learn..."
-                  className="input-field resize-none h-24 font-sans"
-                  disabled={isLoading}
-                />
-              </div>
+        <Button
+          type="submit"
+          variant="accent"
+          fullWidth
+          loading={isLoading}
+          disabled={isLoading}
+          icon={iconFor("Generate roadmap")}
+        >
+          {isLoading ? "Generating..." : "Generate roadmap"}
+        </Button>
 
-              <div>
-                <label
-                  htmlFor="level"
-                  className="block text-sm font-semibold text-text mb-3"
-                >
-                  Your Experience Level
-                </label>
-                <select
-                  id="level"
-                  value={experienceLevel}
-                  onChange={(e) => setExperienceLevel(e.target.value)}
-                  className="input-field font-sans"
-                  disabled={isLoading}
-                >
-                  <option value="Beginner">Beginner - Just starting out</option>
-                  <option value="Intermediate">
-                    Intermediate - Some experience
-                  </option>
-                  <option value="Advanced">
-                    Advanced - Experienced developer
-                  </option>
-                </select>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full px-6 py-4 bg-accent text-white text-lg font-bold rounded-lg hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
-              >
-                {isLoading && <Loader size={20} className="animate-spin" />}
-                {isLoading ? "Generating..." : "Generate Roadmap"}
-              </button>
-
-              <div className="p-4 bg-background border-2 border-border-color rounded-lg">
-                <p className="text-text-light text-sm">
-                  💡 <strong>Tip:</strong> Be specific about the tech stack.
-                  Include frameworks, databases, and tools you want to learn.
-                  Our AI will create a phased roadmap with clear tasks for each
-                  phase.
-                </p>
-              </div>
-            </form>
-          </div>
-        </div>
-      </main>
-    </div>
+        <Alert tone="info" title="Be specific about the tech stack">
+          Include frameworks, databases, and tools you want to learn. The roadmap comes back
+          in phases, each with clear tasks.
+        </Alert>
+      </form>
+    </AuthedShell>
   );
 }

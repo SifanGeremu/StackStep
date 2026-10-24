@@ -1,18 +1,15 @@
+import { fileURLToPath, URL } from "node:url";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import path from "path";
+import tailwindcss from "@tailwindcss/vite";
 
+/* "@/formic/components/Button" and "./formic/components/Button" both work:
+   tsconfig declares the alias, this resolves it */
 export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
-  },
+  plugins: [react(), tailwindcss()],
+  resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
   server: {
-    port: 5173, // ← standard Vite default – or 3001, 8080, anything free
-
-    // Proxy all /api requests to your backend on 4000 → no CORS issues in dev
+    port: 5173,
     proxy: {
       "/api": {
         target: "http://localhost:4000",
