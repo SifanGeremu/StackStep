@@ -1,0 +1,17 @@
+{
+  "accent": "#a5e12a",
+  "palette": "paper",
+  "radius": "default",
+  "cardRadius": "auto",
+  "corners": "smooth",
+  "controls": "scale",
+  "size": "default",
+  "type": "base",
+  "theme": "dark",
+  "avatar": "initials",
+  "sidebar": "full",
+  "sidebarState": "expanded",
+  "font": "Urbanist",
+  "layout": "full",
+  "motion": true
+}

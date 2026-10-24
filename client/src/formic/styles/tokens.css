@@ -1,0 +1,463 @@
+/* ─────────────────────────────────────────────────────────
+ * DESIGN TOKENS — single source of truth for the system
+ * Light + dark palettes, type scale, radii, shadows, motion.
+ * All values WCAG-AA verified by scripts/qa_check.py.
+ * ───────────────────────────────────────────────────────── */
+
+/* Default typeface: Urbanist is loaded by styles/fonts.css, which must be
+ * the FIRST import in the consumer's global stylesheet. CSS only honours
+ * @import before other rules, so it cannot live here — after Tailwind's
+ * rules it would be silently dropped by the build and the font never load. */
+
+:root {
+  /* Typography */
+  --font-sans: "Urbanist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+
+  /* Type scale — one standard ramp, 14px base, integer steps:
+     8 · 10 · 11 · 12 · 13 · 14 · 16 · 18 · 20 · 24 · 32 · 48. */
+  --text-nano: 8px;        /* letters inside mini badges (PDF/CSV squares) */
+  --text-micro: 10px;      /* mono chips, fine print */
+  --text-tiny: 11px;       /* row secondaries, diff counts */
+  --text-small: 12px;      /* timers, meta labels */
+  --text-caption: 13px;    /* secondary labels, options */
+  --text-body: 14px;       /* base — primary UI text */
+  --text-lead: 16px;       /* hero inputs, lead copy */
+  --text-title: 18px;      /* section headings */
+  --text-heading: 20px;    /* page-section headings */
+  --text-display: 24px;    /* page headings */
+  --text-display-lg: 32px; /* feature / marketing headings */
+  --text-display-xl: 48px; /* hero headlines */
+
+  /* Ink scale (text/foreground) */
+  --ink: #1a1a1a;        /* primary text */
+  --ink-2: #5c5c5c;      /* secondary text */
+  --ink-3: #6f6f6f;      /* tertiary / muted text (≥4.5:1 on canvas) */
+
+  /* Lines & surfaces */
+  --line: #e5e5e5;         /* hairline borders/dividers */
+  --line-strong: #cfcfcf;  /* stronger borders */
+  --hover: #f2f2f2;        /* row hover */
+  --hover-2: #ececec;      /* control hover */
+  --inset: #e9e9e9;        /* selected/inset surface */
+
+  /* Accents (light values pass WCAG AA for their usage) */
+  --accent: #557611;      /* lime, fitted to AA on white AND on its own 10% tint (accent-soft, lead tiles) */
+  --orange: #a34a08;
+  --green: #15803d;
+  --red: #b91c1c;
+
+  /* Backgrounds */
+  --canvas: #ffffff;       /* page background — clean white */
+  --surface: #ffffff;      /* card surface */
+  --field: #f5f5f5;        /* input/disabled control background */
+  --sidebar: #fafafa;      /* app rail background — whisper grey, one step off canvas */
+  --scrim: rgba(20, 19, 18, 0.35); /* modal backdrop */
+
+  /* Accent tints */
+  --green-tint: #eef9f2;
+  --red-tint: #fdecec;
+  --accent-tint: color-mix(in srgb, var(--accent) 10%, var(--surface)); /* palette-aware */
+  --orange-tint: color-mix(in srgb, var(--orange) 12%, var(--surface));
+
+  /* Categorical chart ramp — for telling series apart, NOT for meaning.
+     Never use --green/--red here: those signal success and danger, and a
+     chart that colours its second series green implies something it doesn't.
+     chart-1 is the accent, so the primary series follows the brand and the
+     accent picker. 2-5 are fixed hues that hold up in every palette.
+     All verified >= 3:1 (non-text UI) against the lightest surface of any
+     palette. Hue is the only thing separating them, so never rely on colour
+     alone — charts must also label their series. */
+  --chart-1: var(--accent);
+  --chart-2: #0f766e;   /* teal   */
+  --chart-3: #6d28d9;   /* violet */
+  --chart-4: #a16207;   /* amber  */
+  --chart-5: #be185d;   /* pink   */
+  /* Track/rest colour behind bars, rings and gridlines */
+  --chart-track: color-mix(in srgb, var(--ink) 14%, var(--surface));
+
+  /* Status base hues — pills/dots derive bg+text via color-mix,
+     same verified formula as .records-tag (50% into ink ≥ 4.5:1) */
+  --status-todo: oklch(0.75 0.14 60);
+  --status-progress: oklch(0.68 0.11 215);
+  --status-done: oklch(0.66 0.14 160);
+
+  /* Tooltip / overlay surfaces */
+  --tooltip-bg: #1f1f1f;
+  --tooltip-fg: #f2f1ef;
+  --tooltip-muted: #9a9a9a;
+
+  /* Radii */
+  --radius-sm: 6px;       /* rows, small buttons */
+  --radius-chip: 7px;     /* inline chips and pills */
+  --radius-control: 8px;  /* controls, inputs */
+  --radius-md: 10px;      /* inset panels, media cards */
+  --radius-card: 14px;    /* cards */
+  --radius-capsule: 22px; /* collapsed capsule rows */
+  --radius-avatar: var(--radius-control); /* people follow the control radius: square on sharp, a capsule on pill */
+
+  /* Shadows */
+  --shadow-btn: 0 0 0 1px rgba(0, 0, 0, 0.07);
+  --shadow-card: 0 0 0 1px var(--line);
+  --shadow-overlay: 0 0 0 1px var(--line-strong);
+  --shadow-field: none;
+
+  /* Motion */
+  --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1); /* the house easing */
+  --duration-fast: 150ms;
+  --duration-base: 300ms;
+  --duration-slow: 500ms;
+}
+
+/* ── Dark theme ────────────────────────────────────────── */
+/* Light is the default everywhere.
+   Dark is opt-in only: the app sets <html data-theme="dark">. */
+:root[data-theme="dark"] {
+  --ink: #f0efec;
+  --scrim: rgba(0, 0, 0, 0.55);
+  --ink-2: #b0aeaa;
+  --ink-3: #8d8b86;
+  --line: #2a2a29;
+  --line-strong: #3f3e3c;
+  --hover: #232322;
+  --hover-2: #292928;
+  --inset: #232322;
+  --accent: #a5e12a;      /* lime — the dark-mode brand accent */
+  --orange: #e08514;
+  --green: #22c55e;
+  --red: #f87171;
+  --canvas: #131312;
+  --surface: #1c1c1b;
+  --field: #232322;
+  --sidebar: #181817;
+  --green-tint: #16281c;
+  --red-tint: #2e1a19;
+
+  /* Chart ramp, dark. Built from the accent's own properties — saturation 75%,
+     lightness 52% — with hues spread around the wheel and kept >= 40° from
+     --green and --red, so the dashboard reads as one family and no series
+     looks like success or danger. Verified >= 3:1 on the darkest surface of
+     any palette. chart-1 keeps following the accent. */
+  --chart-2: #29a3e0;   /* azure   — hue 200 */
+  --chart-3: #9d3be3;   /* violet  — hue 275, lifted to clear 3:1 */
+  --chart-4: #e0a329;   /* amber   — hue 40  */
+  --chart-5: #e02985;   /* magenta — hue 330 */
+  --tooltip-bg: #2c2c2b;
+  --tooltip-muted: #9c9a95;
+  --shadow-btn: 0 0 0 1px rgba(255, 255, 255, 0.09);
+  --shadow-card: 0 0 0 1px var(--line);
+  --shadow-overlay: 0 0 0 1px var(--line-strong);
+  --shadow-field: none;
+}
+
+/* ── Global radius scale ───────────────────────────────── */
+/* One knob for the whole system's corner language. Explicit token
+   overrides per level rather than a calc() multiplier, so every value
+   stays a real number you can read — the same mechanism palettes use. */
+:root[data-radius="sharp"] {
+  --radius-sm: 0px; --radius-chip: 0px; --radius-control: 0px;
+  --radius-md: 0px; --radius-card: 0px; --radius-capsule: 0px;
+}
+:root[data-radius="rounded"] {
+  --radius-sm: 8px; --radius-chip: 10px; --radius-control: 12px;
+  --radius-md: 14px; --radius-card: 18px; --radius-capsule: 26px;
+}
+:root[data-radius="full"] {
+  --radius-sm: 10px; --radius-chip: 999px; --radius-control: 999px;
+  --radius-md: 14px; --radius-card: 20px; --radius-capsule: 999px; --radius-avatar: 999px;
+}
+
+/* Controls alone: buttons, inputs, chips become capsules while cards,
+   panels and menus keep the scale; formic.config.json's `controls`. A pixel
+   scale folds this into its own [data-radius="custom"] block instead. */
+:root[data-controls="pill"]:not([data-radius="custom"]) { --radius-control: 999px; --radius-chip: 999px; --radius-avatar: 999px; }
+
+/* ── Global size (density) scale ───────────────────────── */
+/* Tailwind v4 derives every spacing and sizing utility from --spacing
+   (0.25rem at root), so overriding that one value rescales all control
+   heights, padding and gaps together — which is why rule 11 still holds
+   at any density: a md button and a md input scale by the same factor.
+
+   Type is deliberately NOT scaled: the ramp is fixed px by rule 2, so
+   density changes without text becoming unreadable.
+
+   The scale only goes UP on purpose. The xs control is exactly 24px,
+   which is rule 15's touch-target floor, so any "compact" level would
+   put the whole system in violation of its own rule. */
+:root[data-size="comfortable"] { --spacing: 0.28rem; }
+:root[data-size="spacious"] { --spacing: 0.3125rem; }
+
+/* Content layout: full (the default) runs edge to edge; compact keeps a
+ * page's content to a readable column, medium a wider one. Wrap page content in .page-content;
+ * rails and headers stay outside it. formic.config.json's `layout`
+ * sets the attribute. */
+:root { --content-max: none; }
+:root[data-layout="compact"] { --content-max: 64rem; }
+:root[data-layout="medium"] { --content-max: 80rem; }
+
+/* Type size: the whole ramp one or two steps up, still integer pixels.
+ * base is 14px; lg reads at 15, xl at 16. Controls do not move (rule 11);
+ * only the letters grow. formic.config.json's `type` sets the attribute. */
+:root[data-type="lg"] {
+  --text-micro: 11px; --text-tiny: 12px; --text-small: 13px; --text-caption: 14px; --text-body: 15px;
+  --text-lead: 17px; --text-title: 19px; --text-heading: 22px; --text-display: 26px; --text-display-lg: 34px; --text-display-xl: 52px;
+}
+:root[data-type="xl"] {
+  --text-micro: 11px; --text-tiny: 13px; --text-small: 14px; --text-caption: 15px; --text-body: 16px;
+  --text-lead: 18px; --text-title: 20px; --text-heading: 23px; --text-display: 28px; --text-display-lg: 36px; --text-display-xl: 56px;
+}
+.page-content { width: 100%; max-width: var(--content-max); margin-inline: auto; }
+
+/* ── Base ──────────────────────────────────────────────── */
+body { font-family: var(--font-sans); background: var(--canvas); color: var(--ink); }
+
+/* Keyboard focus — visible on every interactive element,
+   invisible for mouse/touch (:focus-visible only). The outline follows
+   the element's own corners; the rule sets no radius of its own, so a
+   focused control keeps the radius the scale gave it. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+a:focus-visible { border-radius: var(--radius-sm); } /* text links have no corners of their own */
+
+/* Elements focused by script for screen-reader position (page headings,
+   the active step) carry tabindex="-1", so Tab can never reach them — a
+   ring there is never a keyboard affordance, only noise on click. */
+[tabindex="-1"]:focus-visible { outline: none; }
+/* Browser autofill paints its own pale yellow or blue over a field; that
+   breaks dark mode and every palette. Repaint it with the field's tokens. */
+input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, textarea:-webkit-autofill, select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--field) inset;
+  -webkit-text-fill-color: var(--ink);
+  caret-color: var(--ink);
+  transition: background-color 9999s ease-out;
+}
+input:autofill, textarea:autofill, select:autofill { box-shadow: 0 0 0 1000px var(--field) inset; }
+/* Text inputs render inside a styled field wrapper that shows focus
+   itself (focus-within border + soft ring) — the inner input must not
+   double-ring with the hard outline above. */
+input:focus-visible,
+textarea:focus-visible {
+  outline: none;
+}
+
+/* ── Primitive utility classes used by components ──────── */
+.primitive-card-pad { padding: 14px; }
+.primitive-card-footer { padding: 10px 14px; border-top: 1px solid var(--line); }
+.primitive-card-bar { padding: 8px 12px; }
+.primitive-table-cell { padding: 8px 12px; }
+/* Status pills — theme-adaptive like .records-tag */
+.status-pill-todo { --status-base: var(--status-todo); }
+.status-pill-progress { --status-base: var(--status-progress); }
+.status-pill-done { --status-base: var(--status-done); }
+.status-pill-todo, .status-pill-progress, .status-pill-done {
+  background: color-mix(in srgb, var(--status-base) 16%, var(--surface));
+  color: color-mix(in srgb, var(--status-base) 50%, var(--ink));
+}
+.primitive-icon-button {
+  display: flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; border-radius: 6px;
+}
+/* Optical control finish — progressive enhancements with safe
+   fallbacks. text-box trims the line box to cap height / baseline so
+   flex centering centers the visible letters, not the font's em box.
+   corner-shape smooths radii
+   into squircles — Figma-style corner smoothing. Browsers without
+   support simply render the plain box. */
+.optical-text { text-box: trim-both cap alphabetic; }
+/* Urbanist's measured metrics are symmetric (500/2000em above caps,
+   500 below baseline) — box-centered text is already optically centered,
+   so no fallback nudge is needed where text-box is unsupported. */
+.corner-smooth { corner-shape: squircle; }
+/* Corner shape: smooth (squircle, the default) or round (a plain arc),
+ * chosen once for the whole app by formic.config.json's `corners`. */
+:root[data-corners="round"] .corner-smooth, :root[data-corners="round"] /* the tooltip surface is dark in both themes, so anything inside that reads
+   the ink ramp (text-ink, text-ink-2, text-ink-3, border-ink-3) is re-pointed
+   at the tooltip's own foreground and muted tokens */
+.primitive-tooltip { --ink: var(--tooltip-fg); --ink-2: var(--tooltip-fg); --ink-3: var(--tooltip-muted); }
+.primitive-field { corner-shape: round; }
+/* Field wrapper focus: the wrapper (not the inner input) carries the
+   ring. Plain CSS so no utility-ordering can swallow it. */
+.primitive-field {
+  box-shadow: var(--shadow-field);
+  transition: border-color 150ms;
+  corner-shape: squircle;
+}
+.primitive-field:focus-within {
+  border-color: var(--line-strong);
+}
+.primitive-field[data-invalid="true"],
+.primitive-field[data-invalid="true"]:focus-within {
+  border-color: var(--red);
+}
+/* Slider — a native range input drawn with tokens. The input is
+   24px tall (touch target); the 6px track renders via the vendor
+   track pseudo-elements. Fill percent arrives as --slider-fill. */
+.primitive-slider {
+  appearance: none;
+  height: 24px;
+  background: transparent;
+}
+.primitive-slider::-webkit-slider-runnable-track {
+  height: var(--slider-track, 6px);
+  border-radius: 999px;
+  background: linear-gradient(to right, var(--accent) var(--slider-fill, 0%), var(--inset) var(--slider-fill, 0%));
+  box-shadow: 0 0 0 1px var(--line);
+}
+.primitive-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: calc((var(--slider-track, 6px) - 16px) / 2);
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 0 0 1.5px var(--line-strong), var(--shadow-btn);
+}
+.primitive-slider::-moz-range-track {
+  height: var(--slider-track, 6px);
+  border-radius: 999px;
+  background: linear-gradient(to right, var(--accent) var(--slider-fill, 0%), var(--inset) var(--slider-fill, 0%));
+  box-shadow: 0 0 0 1px var(--line);
+}
+.primitive-slider::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border: none;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 0 0 1.5px var(--line-strong), var(--shadow-btn);
+}
+/* ranges are not text inputs — they keep the shared focus ring */
+input[type="range"].primitive-slider:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+/* RangeSlider: two native ranges on one drawn track. The inputs lose
+   their own track and take no pointer events; only the thumbs do, so
+   either thumb is grabbable wherever it sits. */
+.primitive-slider.is-layered { pointer-events: none; }
+.primitive-slider.is-layered::-webkit-slider-runnable-track { background: transparent; box-shadow: none; }
+.primitive-slider.is-layered::-moz-range-track { background: transparent; box-shadow: none; }
+.primitive-slider.is-layered::-webkit-slider-thumb { pointer-events: auto; }
+.primitive-slider.is-layered::-moz-range-thumb { pointer-events: auto; }
+/* Colour-picker hue strip — the same thumb as .primitive-slider, on a
+   taller track whose background is the spectrum (set inline: it is the
+   control's data, not styling). Native range, so keyboard is free. */
+.color-picker-hue { appearance: none; width: 100%; height: 12px; border-radius: 999px; box-shadow: 0 0 0 1px var(--line); cursor: pointer; }
+.color-picker-hue::-webkit-slider-runnable-track { height: 12px; border-radius: 999px; background: transparent; }
+.color-picker-hue::-webkit-slider-thumb {
+  appearance: none; width: 16px; height: 16px; margin-top: -2px; border-radius: 50%;
+  background: var(--surface); box-shadow: 0 0 0 1.5px var(--line-strong), var(--shadow-btn);
+}
+.color-picker-hue::-moz-range-track { height: 12px; border-radius: 999px; background: transparent; }
+.color-picker-hue::-moz-range-thumb {
+  width: 13px; height: 13px; border: none; border-radius: 50%;
+  background: var(--surface); box-shadow: 0 0 0 1.5px var(--line-strong), var(--shadow-btn);
+}
+input[type="range"].color-picker-hue:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.shadow-hairline { box-shadow: 0 0 0 1px var(--line); }
+@keyframes progress-slide {
+  from { transform: translateX(-110%); }
+  to { transform: translateX(440%); }
+}
+@keyframes drawer-in-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+@keyframes drawer-in-left {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+/* with reduced motion the sweep freezes — a full quiet bar reads
+   better than one parked at 30% (which looks stalled) */
+@media (prefers-reduced-motion: reduce) {
+  .progress-indeterminate-bar { width: 100% !important; }
+}
+.source-avatar { object-fit: cover; }
+.animated-underline {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 200ms ease;
+}
+a:hover .animated-underline,
+.animated-underline:hover { background-size: 100% 1px; }
+
+/* ── Keyframes used by components ──────────────────────── */
+
+/* LoadingState: pixel-grid cell pulse */
+@keyframes pixel-on {
+  0%, 100% { opacity: 0.15; }
+  40%      { opacity: 1; }
+}
+
+/* LoadingState: shimmering label sweep */
+@keyframes shimmer-text {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Shared: card/overlay entrance */
+/* One-shot left→right reveal for sparklines: clips the whole svg, so it
+   works with non-scaling strokes where a dash draw-in does not. */
+@keyframes reveal-x { from { clip-path: inset(-4px 100% -4px -4px); } to { clip-path: inset(-4px); } }
+@keyframes pop-in {
+  0%   { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* Shared: simple fade */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Shared: fade + rise entrance for list rows */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Shared: spinner rotation */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* StreamingText: words resolve out of blur */
+@keyframes stream-in {
+  from { opacity: 0; filter: blur(4px); }
+  to   { opacity: 1; filter: blur(0); }
+}
+
+/* Dictation bars */
+@keyframes eq-bounce {
+  0%, 100% { transform: scaleY(0.4); }
+  50%      { transform: scaleY(1); }
+}
+
+/* One-shot celebratory rainbow sweep (decorative — colors are
+   deliberately outside the theme palette, like demo brand marks) */
+@keyframes rainbow-sweep {
+  0%   { transform: translateX(-70%); opacity: 0; }
+  12%  { opacity: 0.9; }
+  100% { transform: translateX(70%); opacity: 0; }
+}
+.rainbow-sweep {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(100deg, transparent 12%, #ff5f5f 28%, #ffb45f 37%, #ffe45f 46%, #5fd78a 55%, #5fc9e8 64%, #7a7aff 73%, #c07aff 82%, transparent 92%);
+  filter: blur(10px) saturate(1.2);
+  animation: rainbow-sweep 650ms var(--ease-out-quint) both;
+}
+
+/* ── Reduced motion ────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
