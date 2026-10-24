@@ -2,6 +2,7 @@ import fetch from "node-fetch";
 import stackStepPrompt from "../service/prompt.service.js";
 
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
+const GROQ_MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-120b";
 
 //Validate project plan structure
 function validateProjectPlan(plan) {
@@ -47,7 +48,11 @@ async function fetchAndParseLLM(userPrompt, maxRetries = 2) {
   while (attempt <= maxRetries) {
     attempt++;
     try {
-      console.log(`LLM request attempt ${attempt}...`);
+      if (!process.env.GROQ_API_KEY) {
+        throw new Error("GROQ_API_KEY is not configured on the server");
+      }
+
+      console.log(`LLM request attempt ${attempt} (model: ${GROQ_MODEL})...`);
 
       const response = await fetch(GROQ_API_URL, {
         method: "POST",
@@ -56,16 +61,23 @@ async function fetchAndParseLLM(userPrompt, maxRetries = 2) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
+          model: GROQ_MODEL,
           messages: [
             { role: "system", content: stackStepPrompt },
             { role: "user", content: userPrompt },
           ],
           temperature: 0.3,
+          max_tokens: 8192,
+          response_format: { type: "json_object" },
         }),
       });
 
       const data = await response.json();
+      if (!response.ok) {
+        const apiError = data?.error?.message || JSON.stringify(data);
+        throw new Error(`Groq API error (${response.status}): ${apiError}`);
+      }
+
       const rawContent = data?.choices?.[0]?.message?.content;
       if (!rawContent) throw new Error("Empty LLM response");
 
