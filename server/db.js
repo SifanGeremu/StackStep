@@ -11,7 +11,8 @@ export async function connectDB(uri) {
   console.log(`Connecting to MongoDB host: ${host}`);
 
   try {
-    await mongoose.connect(uri, { serverSelectionTimeoutMS: 10000 });
+    // ponytail: family:4 avoids Render IPv6 DNS issues reaching Atlas
+    await mongoose.connect(uri, { serverSelectionTimeoutMS: 10000, family: 4 });
     console.log("MongoDB Atlas connected");
   } catch (error) {
     const msg = error.message ?? String(error);

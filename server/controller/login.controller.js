@@ -34,7 +34,7 @@ const loginController = async (req, res) => {
     };
 
     // Sign token
-    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+    const token = jwt.sign(payload, process.env.JWT_SECRET || "dev-secret", {
       expiresIn: "1h",
     });
 
