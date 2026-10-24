@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "formic": {
+      "command": "npx",
+      "args": [
+        "formicai",
+        "mcp"
+      ]
+    }
+  }
+}

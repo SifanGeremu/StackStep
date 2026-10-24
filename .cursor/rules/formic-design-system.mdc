@@ -1,0 +1,10 @@
+---
+description: Formic AI Design System, how UI is built in this project
+alwaysApply: true
+---
+
+The web app is `client/`. Formic is vendored at `client/src/formic/`. Paths in the commands below are relative to `client/`.
+
+All UI in this project is built with the Formic AI Design System, vendored at `client/src/formic/`.
+
+Before writing or changing any UI, read @AGENTS.md and follow its procedure in order: confirm `src/formic/styles/tokens.css` exists, read it, list `src/formic/components/`, import existing components instead of re-creating them, compose new patterns from `src/formic/components/primitives.tsx`, build only from its components (a raw <button>, <input>, <table> or <svg> in a page is a defect; when a component you need is not in `src/formic/components` run `npx formicai add <name>` (`npx formicai add --list` names them), never a stand-in; only when no Formic component exists at all, build one in `src/formic/components` from primitives and say so), and finish by running `python3 src/formic/scripts/formic_check.py src --config=package.json` and `python3 src/formic/scripts/compose_check.py src --config=package.json` (what `npm run formic` runs; the config names the folders in scope and the legacy ones) until both pass.
