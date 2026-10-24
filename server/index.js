@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import mongoose from "mongoose";
 import connectDB from "./db.js";
 import registerRoute from "./routes/register.route.js";
 import loginRoute from "./routes/login.route.js";
@@ -8,7 +9,8 @@ import projectRoutes from "./routes/project.route.js";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
-const mongoUri = process.env.MONGO_URI || process.env.ATLAS_URI;
+const mongoUri =
+  process.env.MONGO_URI || process.env.ATLAS_URI || process.env.MONGODB_URI;
 
 // Render sits behind a proxy, so rate limiting needs the forwarded IP.
 app.set("trust proxy", 1);
@@ -43,6 +45,18 @@ app.use(cors(corsOptions));
 // Test route
 app.get("/", (req, res) => res.send("Hello World!"));
 
+app.get("/health", async (req, res) => {
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(503).json({ ok: false, db: "disconnected" });
+  }
+  try {
+    await mongoose.connection.db.admin().ping();
+    return res.json({ ok: true, db: "connected" });
+  } catch (error) {
+    return res.status(503).json({ ok: false, db: error.message });
+  }
+});
+
 // Auth routes
 app.use("/api/auth/register", registerRoute);
 app.use("/api/auth/login", loginRoute);
@@ -55,12 +69,16 @@ app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
-// Bind the HTTP port even when Atlas is temporarily unavailable. This keeps
-// health checks and CORS preflights reachable while the database reconnects.
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+const startServer = async () => {
+  try {
+    await connectDB(mongoUri);
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("Failed to start server:", error.message);
+    process.exit(1);
+  }
+};
 
-connectDB(mongoUri).catch((error) => {
-  console.error("MongoDB connection failed:", error.message);
-});
+startServer();

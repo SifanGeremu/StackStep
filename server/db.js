@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 export async function connectDB(uri) {
   if (!uri) {
     throw new Error(
-      "MongoDB connection string is not configured. Set MONGO_URI or ATLAS_URI on Render.",
+      "MongoDB connection string is not configured. Set ATLAS_URI, MONGO_URI, or MONGODB_URI on Render.",
     );
   }
 

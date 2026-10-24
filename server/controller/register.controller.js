@@ -49,7 +49,7 @@ const registerController = async (req, res) => {
         user: { id: newUser._id, email: newUser.email, name: newUser.name },
       });
   } catch (error) {
-    console.log(error.message);
+    console.error("Register error:", error.message);
     return res.status(500).json({ errors: ["server error"] });
   }
 };
