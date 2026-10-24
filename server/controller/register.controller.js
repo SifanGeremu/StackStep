@@ -35,7 +35,7 @@ const registerController = async (req, res) => {
 
     // sign JWT and return token + basic user info for immediate login
     const token = jwt.sign(
-      { id: newUser._id, email: newUser.email },
+      { userId: newUser._id, email: newUser.email },
       process.env.JWT_SECRET || "dev-secret",
       {
         expiresIn: "7d",
